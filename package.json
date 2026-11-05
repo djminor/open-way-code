@@ -1,0 +1,22 @@
+{
+  "name": "openway-code",
+  "version": "1.0.0",
+  "description": "OpenWay Code — Community Pathways to Computer Science",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node -c lessons.js runner.js app.js server.js"
+  },
+  "keywords": [
+    "education",
+    "learn-to-code",
+    "python",
+    "javascript",
+    "curriculum"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
