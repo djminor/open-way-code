@@ -79,6 +79,22 @@ const server = http.createServer((req, res) => {
   });
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    const nextPort = PORT + 1;
+    console.warn(`⚠️  Port ${PORT} is already in use. Switching to port ${nextPort}...`);
+    server.listen(nextPort, () => {
+      console.log(`====================================================`);
+      console.log(`🚀 OpenWay Code Server is Live!`);
+      console.log(`📡 URL: http://localhost:${nextPort}`);
+      console.log(`📂 Serving directory: ${BASE_DIR}`);
+      console.log(`====================================================`);
+    });
+  } else {
+    console.error('Server error:', err);
+  }
+});
+
 server.listen(PORT, () => {
   console.log(`====================================================`);
   console.log(`🚀 OpenWay Code Server is Live!`);
