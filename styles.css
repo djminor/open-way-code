@@ -40,8 +40,14 @@
   --sidebar-width: 310px;
 }
 
-* {
+html {
   box-sizing: border-box;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
   margin: 0;
   padding: 0;
 }
@@ -50,11 +56,19 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-app);
   color: var(--text-primary);
+  min-height: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Studio IDE mode keeps app header fixed and inner panes scrollable */
+body.studio-page {
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
 /* ==========================================================================
@@ -190,6 +204,8 @@ body {
 .app-container {
   display: flex;
   flex: 1;
+  height: calc(100vh - 56px);
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -200,7 +216,8 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: calc(100vh - 56px);
+  height: 100%;
+  min-height: 0;
   transition: width 0.2s ease, opacity 0.2s ease;
 }
 
@@ -261,6 +278,7 @@ body {
 .lessons-list {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 10px 12px;
   list-style: none;
 }
@@ -405,7 +423,9 @@ body {
 .workspace {
   flex: 1;
   display: flex;
-  height: calc(100vh - 56px);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -416,7 +436,9 @@ body {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-panel);
-  overflow-y: auto;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
   max-width: 48%;
   transition: max-width 0.25s ease, opacity 0.2s ease;
 }
@@ -490,7 +512,10 @@ body {
 }
 
 .lesson-content-wrapper {
-  padding: 36px 44px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 32px 36px;
 }
 
 .lesson-header-badge {
@@ -668,6 +693,8 @@ body {
   background-color: var(--bg-code);
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
 }
 
 /* File Tabs Bar */
@@ -774,6 +801,8 @@ body {
   position: relative;
   overflow: hidden;
   background-color: var(--bg-code);
+  min-height: 0;
+  min-width: 0;
 }
 
 .editor-wrapper {
@@ -781,10 +810,13 @@ body {
   display: flex;
   overflow: hidden;
   background-color: var(--bg-code);
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
 }
 
 .line-numbers {
-  width: 44px;
+  width: 48px;
   padding: 16px 8px;
   text-align: right;
   font-family: var(--font-mono);
@@ -794,6 +826,9 @@ body {
   user-select: none;
   border-right: 1px solid var(--border-subtle);
   background-color: #15181e;
+  overflow: hidden;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 .code-textarea {
@@ -810,6 +845,9 @@ body {
   white-space: pre;
   overflow-wrap: normal;
   overflow-x: auto;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 0;
   tab-size: 4;
 }
 
@@ -820,6 +858,8 @@ body {
   flex-direction: column;
   background: #ffffff;
   overflow: hidden;
+  min-height: 0;
+  min-width: 0;
 }
 
 .preview-header {
@@ -832,6 +872,7 @@ body {
   padding: 0 14px;
   font-size: 11.5px;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .preview-iframe {
@@ -847,10 +888,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: var(--bg-panel);
   padding: 20px;
-  overflow: auto;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .map-container {
@@ -859,6 +901,7 @@ body {
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border-strong);
+  flex-shrink: 0;
 }
 
 .map-img {
@@ -872,6 +915,9 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg-panel);
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
 }
 
 .ai-chat-header {
@@ -884,11 +930,13 @@ body {
   align-items: center;
   gap: 8px;
   color: var(--text-bright);
+  flex-shrink: 0;
 }
 
 .ai-chat-body {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -999,6 +1047,7 @@ body {
   font-size: 12px;
   line-height: 1.6;
   overflow-y: auto;
+  min-height: 0;
   background-color: var(--bg-term);
   color: #f1f5f9;
   white-space: pre-wrap;
@@ -1088,6 +1137,7 @@ body {
 .loki-content {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 24px;
 }
 
@@ -1123,8 +1173,13 @@ body {
 }
 
 /* Scrollbars */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-thumb { background: #373e4a; border-radius: 3px; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #373e4a transparent;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #373e4a; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #4b5565; }
 
 /* ==========================================================================
@@ -1135,8 +1190,11 @@ body {
   background: var(--bg-app);
   color: var(--text-primary);
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .landing-header {
