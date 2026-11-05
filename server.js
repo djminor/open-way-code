@@ -37,6 +37,8 @@ const server = http.createServer((req, res) => {
   
   if (safePath === '/' || safePath === '') {
     safePath = '/index.html';
+  } else if (safePath === '/studio') {
+    safePath = '/studio.html';
   }
 
   const filePath = path.join(BASE_DIR, safePath);

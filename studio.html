@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenWay Code — Community Pathways to Computer Science</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- In-Browser Python & Web Execution Engine -->
+</head>
+<body>
+
+  <!-- Top App Navigation & Progress Bar -->
+  <header class="app-header">
+    <div class="brand">
+      <a href="index.html" class="btn-drawer-toggle" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Back to OpenWay Code Home">‹ Home</a>
+      <button id="toggleSidebarBtn" class="btn-drawer-toggle" title="Toggle Curriculum Sidebar">☰ Curriculum</button>
+      <div class="brand-icon" title="OpenWay Code">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </div>
+      <div>
+        <div class="brand-title">OpenWay Code</div>
+      </div>
+      <span class="brand-tag">Studio</span>
+    </div>
+
+    <!-- Overall Course Progress -->
+    <div class="header-progress">
+      <div class="progress-bar-container">
+        <div class="progress-info">
+          <span>Course Progress</span>
+          <span id="progressText">0 of 12 Completed (0%)</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Header Tools -->
+    <div class="header-actions">
+      <!-- Hidden Loki Teacher Menu Toggle -->
+      <button id="lokiToggleBtn" class="btn-loki-toggle" title="Loki Teacher Portal & Answer Keys (Alt+L)">
+        <span>🗝️</span> Loki Portal
+      </button>
+      <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </header>
+
+  <!-- Main Split Layout -->
+  <div class="app-container">
+
+    <!-- Left Sidebar: 12 Lessons Partition -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Curriculum</span>
+        <span id="sidebarCompletedBadge" class="sidebar-stats">0 / 12 Done</span>
+      </div>
+
+      <!-- Scrollable 12 Lessons List -->
+      <ul id="lessonsList" class="lessons-list">
+        <!-- Rendered dynamically by app.js -->
+      </ul>
+
+      <!-- Bottom Sidebar Navigation & Cycling Controls -->
+      <div class="sidebar-footer">
+        <div class="cycle-buttons">
+          <button id="prevLessonBtn" class="btn-cycle" title="Previous Lesson (or press [)">
+            <span>‹</span> Previous
+          </button>
+          <button id="nextLessonBtn" class="btn-cycle" title="Next Lesson (or press ])">
+            Next <span>›</span>
+          </button>
+        </div>
+        <div class="shortcuts-tip">
+          Cycle: <kbd>[</kbd> / <kbd>]</kbd> &bull; Run: <kbd>⌘+Enter</kbd> &bull; Loki: <kbd>Alt+L</kbd>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center/Right Workspace -->
+    <main class="workspace">
+
+      <!-- Left Pane: Lesson Explanations, Concepts & Mission -->
+      <section class="lesson-pane" id="lessonPane">
+        <div class="lesson-pane-topbar">
+          <span class="lesson-pane-tag">Lesson Guide</span>
+          <button id="collapseLessonBtn" class="btn-collapse-pane" title="Collapse guide for full-screen coding">
+            <span>‹</span> Hide Guide
+          </button>
+        </div>
+        <div class="lesson-content-wrapper">
+          <div id="lessonBadge" class="lesson-header-badge">Lesson 1 of 12 &bull; ⏱️ 60 mins</div>
+          <h1 id="lessonTitle" class="lesson-main-title">Why Code? Problem Solving in the Era of AI</h1>
+          <p id="lessonSubtitle" class="lesson-subtitle">Coding is learning how to think, decompose, and solve problems.</p>
+
+          <!-- Core Lesson Concept -->
+          <div id="lessonContent" class="lesson-body">
+            <!-- Rendered by app.js -->
+          </div>
+
+          <!-- Mission / Challenge Card -->
+          <div class="mission-card">
+            <div id="missionContent">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+
+          <!-- Progressive Hints Accordion -->
+          <div class="hints-container">
+            <h4 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Need a hand?</h4>
+            <div id="hintsContainer">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Pane: Interactive Code Studio & Terminal -->
+      <section class="studio-pane">
+        
+        <!-- Multi-File Tabs Bar -->
+        <div class="tabs-bar">
+          <button id="expandInstructionsBtn" class="btn-expand-instructions" style="display: none;" title="Open Lesson Instructions">
+            <span>📖</span> Guide <span>❯</span>
+          </button>
+          <div id="fileTabsContainer" class="file-tabs-container">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+
+          <div class="studio-actions">
+            <button id="resetCodeBtn" class="btn-action btn-reset" title="Reset to starter code">
+              ↺ Reset
+            </button>
+            <button id="checkAnswerBtn" class="btn-action btn-check" title="Validate answer against lesson criteria">
+              ✓ Check Answer
+            </button>
+            <button id="runCodeBtn" class="btn-action btn-run" title="Run code (⌘+Enter)">
+              Run ❯
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Studio Main Area -->
+        <div class="editor-main-area">
+
+          <!-- 1. Code Editor View -->
+          <div id="editorWrapper" class="editor-wrapper">
+            <div id="lineNumbers" class="line-numbers">1</div>
+            <textarea id="codeEditor" class="code-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+
+          <!-- 2. Live Web Preview View (Lessons 2 & 3) -->
+          <div id="previewWrapper" class="preview-wrapper" style="display: none;">
+            <div class="preview-header">
+              <span>🌐 Live Web App Preview</span>
+              <span>Interactive Browser Runtime</span>
+            </div>
+            <iframe id="previewIframe" class="preview-iframe" sandbox="allow-scripts allow-modals"></iframe>
+          </div>
+
+          <!-- 3. Middle Earth Map Viewer (Lesson 6) -->
+          <div id="mapViewerWrapper" class="map-viewer-wrapper" style="display: none;">
+            <div class="map-container">
+              <img src="middle_earth_map.jpg" alt="Middle Earth Map" class="map-img">
+            </div>
+            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-secondary);">
+              <span>Destinations: Hobbiton (5, 8) &bull; Weathertop (8.5, 8) &bull; Ettenmoors (9.5, 9.25) &bull; Lorien (6.5, 10.5) &bull; Rohan (5, 11) &bull; Gondor (3, 10) &bull; Erebor (9.5, 13.8)</span>
+            </div>
+          </div>
+
+          <!-- 4. AI Guest Assistant Sandbox (Lesson 7) -->
+          <div id="aiSandboxWrapper" class="ai-sandbox-wrapper" style="display: none;">
+            <div class="ai-chat-header">
+              <span>🤖</span>
+              <span>AI Coding Partner Sandbox (Guest Session)</span>
+            </div>
+            <div id="aiChatBody" class="ai-chat-body">
+              <div class="ai-bubble assistant">
+                Hello! I am your AI coding co-pilot. You can ask me to draft functions, review logic, explain errors, or suggest unit tests. Remember to always critically review my code!
+              </div>
+            </div>
+            <div class="ai-chat-input-bar">
+              <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Ask AI: e.g. 'Write a palindrome function with test cases'...">
+              <button id="aiChatSendBtn" class="btn-action btn-check">Send</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Verification Feedback Banner -->
+        <div id="feedbackBanner" class="feedback-banner" style="display: none;">
+          <div id="feedbackText"></div>
+        </div>
+
+        <!-- Terminal Output Window -->
+        <div class="terminal-pane">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="terminal-dot dot-red"></span>
+              <span class="terminal-dot dot-yellow"></span>
+              <span class="terminal-dot dot-green"></span>
+            </div>
+            <div class="terminal-title">
+              <span>🖥️</span> Terminal Output
+            </div>
+            <div class="terminal-actions">
+              <button id="clearTermBtn" class="btn-term-action">Clear</button>
+            </div>
+          </div>
+
+          <!-- Terminal Body Text -->
+          <div id="terminalOutput" class="terminal-body"><span class="term-info">💡 Click "Run ❯" or press ⌘+Enter to execute!</span>
+</div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Loki Hidden Teacher Drawer -->
+  <div id="lokiOverlay" class="loki-overlay">
+    <div class="loki-drawer">
+      <div class="loki-header">
+        <div class="loki-title-group">
+          <span style="font-size: 20px;">🗝️</span>
+          <div class="loki-title">Loki Teacher Portal</div>
+        </div>
+        <button id="closeLokiBtn" class="btn-icon" title="Close (Esc)">✕</button>
+      </div>
+
+      <div id="lokiBody" class="loki-content">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- In-Browser Python Engine (Local first, CDN fallback) -->
+  <script src="skulpt.min.js"></script>
+  <script src="skulpt-stdlib.js"></script>
+  <script>
+    if (typeof Sk === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"><\\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"><\\/script>');
+    }
+  </script>
+
+  <!-- Application Scripts -->
+  <script src="lessons.js"></script>
+  <script src="runner.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

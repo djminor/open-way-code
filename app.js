@@ -20,8 +20,23 @@ class CodingApp {
     this.bindEvents();
     this.renderSidebar();
 
-    const savedIndex = parseInt(localStorage.getItem('openway_last_index_v1') || '0', 10);
-    this.selectLesson(isNaN(savedIndex) ? 0 : Math.min(Math.max(0, savedIndex), this.lessons.length - 1));
+    let initialIndex = 0;
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramLesson = parseInt(urlParams.get('lesson'), 10);
+    const hashMatch = window.location.hash.match(/lesson-(\d+)/);
+    
+    if (!isNaN(paramLesson) && paramLesson >= 1 && paramLesson <= this.lessons.length) {
+      initialIndex = paramLesson - 1;
+    } else if (hashMatch) {
+      const hashLesson = parseInt(hashMatch[1], 10);
+      if (!isNaN(hashLesson) && hashLesson >= 1 && hashLesson <= this.lessons.length) {
+        initialIndex = hashLesson - 1;
+      }
+    } else {
+      const savedIndex = parseInt(localStorage.getItem('openway_last_index_v1') || '0', 10);
+      initialIndex = isNaN(savedIndex) ? 0 : Math.min(Math.max(0, savedIndex), this.lessons.length - 1);
+    }
+    this.selectLesson(initialIndex);
 
     PlaygroundRunner.init();
   }

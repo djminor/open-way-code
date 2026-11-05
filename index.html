@@ -7,16 +7,13 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- In-Browser Python & Web Execution Engine -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="landing-wrapper">
 
-  <!-- Top App Navigation & Progress Bar -->
-  <header class="app-header">
+  <!-- Top Navigation Header -->
+  <header class="landing-header">
     <div class="brand">
-      <button id="toggleSidebarBtn" class="btn-drawer-toggle" title="Toggle Curriculum Sidebar">☰ Curriculum</button>
       <div class="brand-icon" title="OpenWay Code">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
       </div>
@@ -26,232 +23,443 @@
       <span class="brand-tag">Community Studio</span>
     </div>
 
-    <!-- Overall Course Progress -->
-    <div class="header-progress">
-      <div class="progress-bar-container">
-        <div class="progress-info">
-          <span>Course Progress</span>
-          <span id="progressText">0 of 12 Completed (0%)</span>
-        </div>
-        <div class="progress-bar-track">
-          <div id="progressBarFill" class="progress-bar-fill"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Header Tools -->
-    <div class="header-actions">
-      <!-- Hidden Loki Teacher Menu Toggle -->
-      <button id="lokiToggleBtn" class="btn-loki-toggle" title="Loki Teacher Portal & Answer Keys (Alt+L)">
-        <span>🗝️</span> Loki Portal
-      </button>
-      <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme">☀️</button>
-    </div>
+    <nav class="landing-nav-links">
+      <a href="#curriculum" class="landing-nav-link">Curriculum</a>
+      <a href="#pillars" class="landing-nav-link">Why OpenWay</a>
+      <a href="#story" class="landing-nav-link">Our Story</a>
+      <a href="#facilitators" class="landing-nav-link">Educators</a>
+      <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme" style="margin-right: 4px;">☀️</button>
+      <a href="studio.html" class="btn-cta-primary" id="headerLaunchBtn" style="padding: 7px 16px; font-size: 13px;">
+        Launch Studio ❯
+      </a>
+    </nav>
   </header>
 
-  <!-- Main Split Layout -->
-  <div class="app-container">
-
-    <!-- Left Sidebar: 12 Lessons Partition -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Curriculum</span>
-        <span id="sidebarCompletedBadge" class="sidebar-stats">0 / 12 Done</span>
-      </div>
-
-      <!-- Scrollable 12 Lessons List -->
-      <ul id="lessonsList" class="lessons-list">
-        <!-- Rendered dynamically by app.js -->
-      </ul>
-
-      <!-- Bottom Sidebar Navigation & Cycling Controls -->
-      <div class="sidebar-footer">
-        <div class="cycle-buttons">
-          <button id="prevLessonBtn" class="btn-cycle" title="Previous Lesson (or press [)">
-            <span>‹</span> Previous
-          </button>
-          <button id="nextLessonBtn" class="btn-cycle" title="Next Lesson (or press ])">
-            Next <span>›</span>
-          </button>
+  <!-- Hero Section -->
+  <main>
+    <section class="landing-hero">
+      <div class="hero-content">
+        <div class="origin-pill">
+          <span>🏛️</span> Born at United Way &bull; 100% Free & Open Access
         </div>
-        <div class="shortcuts-tip">
-          Cycle: <kbd>[</kbd> / <kbd>]</kbd> &bull; Run: <kbd>⌘+Enter</kbd> &bull; Loki: <kbd>Alt+L</kbd>
+        <h1 class="hero-heading">
+          Clear pathways into computer science for every young mind.
+        </h1>
+        <p class="hero-subheading">
+          A hands-on, 12-hour coding curriculum and in-browser studio. Zero software downloads, zero command-line headaches, and zero cost—learn to think like an engineer through real-world problem solving.
+        </p>
+        <div class="hero-actions">
+          <a href="studio.html" class="btn-cta-primary" id="heroStartBtn">
+            <span>Start Lesson 1</span> <span>❯</span>
+          </a>
+          <a href="#curriculum" class="btn-cta-secondary">
+            <span>Explore 12 Lessons</span> <span>↓</span>
+          </a>
         </div>
       </div>
-    </aside>
 
-    <!-- Center/Right Workspace -->
-    <main class="workspace">
-
-      <!-- Left Pane: Lesson Explanations, Concepts & Mission -->
-      <section class="lesson-pane" id="lessonPane">
-        <div class="lesson-pane-topbar">
-          <span class="lesson-pane-tag">Lesson Guide</span>
-          <button id="collapseLessonBtn" class="btn-collapse-pane" title="Collapse guide for full-screen coding">
-            <span>‹</span> Hide Guide
-          </button>
+      <!-- Hero Interactive Code Preview Card -->
+      <div class="hero-code-card">
+        <div class="hero-code-header">
+          <div class="terminal-dots">
+            <span class="terminal-dot dot-red"></span>
+            <span class="terminal-dot dot-yellow"></span>
+            <span class="terminal-dot dot-green"></span>
+          </div>
+          <div class="hero-code-title">main.py — Lesson 1</div>
+          <span style="font-size: 11px; color: var(--accent-color); font-weight: 600;">Python 3</span>
         </div>
-        <div class="lesson-content-wrapper">
-          <div id="lessonBadge" class="lesson-header-badge">Lesson 1 of 12 &bull; ⏱️ 60 mins</div>
-          <h1 id="lessonTitle" class="lesson-main-title">Why Code? Problem Solving in the Era of AI</h1>
-          <p id="lessonSubtitle" class="lesson-subtitle">Coding is learning how to think, decompose, and solve problems.</p>
+        <pre class="hero-code-body"><code><span class="tok-comment"># The Robot Toast Algorithm</span>
+<span class="tok-kw">def</span> <span class="tok-fn">make_toast</span>(has_bread, is_plugged_in):
+    <span class="tok-kw">if not</span> is_plugged_in:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Error: Toaster needs power!"</span>)
+        <span class="tok-kw">return False</span>
+    <span class="tok-kw">if not</span> has_bread:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Error: No bread available!"</span>)
+        <span class="tok-kw">return False</span>
+    
+    <span class="tok-fn">print</span>(<span class="tok-str">"Step 1: Lower bread into slot"</span>)
+    <span class="tok-fn">print</span>(<span class="tok-str">"Step 2: Dial heat level to 3"</span>)
+    <span class="tok-fn">print</span>(<span class="tok-str">"Success: Warm golden toast ready!"</span>)
+    <span class="tok-kw">return True</span>
 
-          <!-- Core Lesson Concept -->
-          <div id="lessonContent" class="lesson-body">
-            <!-- Rendered by app.js -->
-          </div>
+make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class="tok-kw">True</span>)</code></pre>
+      </div>
+    </section>
 
-          <!-- Mission / Challenge Card -->
-          <div class="mission-card">
-            <div id="missionContent">
-              <!-- Rendered by app.js -->
-            </div>
-          </div>
-
-          <!-- Progressive Hints Accordion -->
-          <div class="hints-container">
-            <h4 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Need a hand?</h4>
-            <div id="hintsContainer">
-              <!-- Rendered by app.js -->
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Pane: Interactive Code Studio & Terminal -->
-      <section class="studio-pane">
-        
-        <!-- Multi-File Tabs Bar -->
-        <div class="tabs-bar">
-          <button id="expandInstructionsBtn" class="btn-expand-instructions" style="display: none;" title="Open Lesson Instructions">
-            <span>📖</span> Guide <span>❯</span>
-          </button>
-          <div id="fileTabsContainer" class="file-tabs-container">
-            <!-- Rendered dynamically by app.js -->
-          </div>
-
-          <div class="studio-actions">
-            <button id="resetCodeBtn" class="btn-action btn-reset" title="Reset to starter code">
-              ↺ Reset
-            </button>
-            <button id="checkAnswerBtn" class="btn-action btn-check" title="Validate answer against lesson criteria">
-              ✓ Check Answer
-            </button>
-            <button id="runCodeBtn" class="btn-action btn-run" title="Run code (⌘+Enter)">
-              Run ❯
-            </button>
-          </div>
+    <!-- 4 Core Pillars Section -->
+    <section class="pillars-section" id="pillars">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-tag">Guiding Principles</div>
+          <h2 class="section-title">Built for understanding, not rote syntax</h2>
+          <p class="section-subtitle">
+            AI can generate code in seconds. We teach students the foundational computational thinking needed to direct, verify, and architect solutions.
+          </p>
         </div>
 
-        <!-- Dynamic Studio Main Area -->
-        <div class="editor-main-area">
-
-          <!-- 1. Code Editor View -->
-          <div id="editorWrapper" class="editor-wrapper">
-            <div id="lineNumbers" class="line-numbers">1</div>
-            <textarea id="codeEditor" class="code-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-          </div>
-
-          <!-- 2. Live Web Preview View (Lessons 2 & 3) -->
-          <div id="previewWrapper" class="preview-wrapper" style="display: none;">
-            <div class="preview-header">
-              <span>🌐 Live Web App Preview</span>
-              <span>Interactive Browser Runtime</span>
-            </div>
-            <iframe id="previewIframe" class="preview-iframe" sandbox="allow-scripts allow-modals"></iframe>
-          </div>
-
-          <!-- 3. Middle Earth Map Viewer (Lesson 6) -->
-          <div id="mapViewerWrapper" class="map-viewer-wrapper" style="display: none;">
-            <div class="map-container">
-              <img src="middle_earth_map.jpg" alt="Middle Earth Map" class="map-img">
-            </div>
-            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-secondary);">
-              <span>Destinations: Hobbiton (5, 8) &bull; Weathertop (8.5, 8) &bull; Ettenmoors (9.5, 9.25) &bull; Lorien (6.5, 10.5) &bull; Rohan (5, 11) &bull; Gondor (3, 10) &bull; Erebor (9.5, 13.8)</span>
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-icon">🧠</div>
+            <div class="pillar-title">Problem Solving First</div>
+            <div class="pillar-text">
+              Computational thinking is the real superpower. Students learn problem decomposition, pattern recognition, and algorithm design.
             </div>
           </div>
 
-          <!-- 4. AI Guest Assistant Sandbox (Lesson 7) -->
-          <div id="aiSandboxWrapper" class="ai-sandbox-wrapper" style="display: none;">
-            <div class="ai-chat-header">
-              <span>🤖</span>
-              <span>AI Coding Partner Sandbox (Guest Session)</span>
+          <div class="pillar-card">
+            <div class="pillar-icon">🌐</div>
+            <div class="pillar-title">Zero Installation Barrier</div>
+            <div class="pillar-text">
+              Runs 100% inside any web browser on Chromebooks, tablets, or library computers. No software installs or environment configs required.
             </div>
-            <div id="aiChatBody" class="ai-chat-body">
-              <div class="ai-bubble assistant">
-                Hello! I am your AI coding co-pilot. You can ask me to draft functions, review logic, explain errors, or suggest unit tests. Remember to always critically review my code!
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">🧭</div>
+            <div class="pillar-title">Authentic Algorithmic Quests</div>
+            <div class="pillar-text">
+              Parse messy scraped HTML with regular expressions, maximize festival schedules with greedy sorting, and optimize routes across Middle Earth.
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">🤝</div>
+            <div class="pillar-title">Community-Rooted & Free</div>
+            <div class="pillar-text">
+              Originating from community workshops at United Way, OpenWay Code is completely free and open for classrooms, clubs, and independent learners.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12-Lesson Curriculum Roadmap -->
+    <section class="curriculum-section" id="curriculum">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-tag">Course Roadmap</div>
+          <h2 class="section-title">The 12-Hour Journey</h2>
+          <p class="section-subtitle">
+            Each lesson is crafted as a 60-minute, self-contained workshop module with guided concepts, hands-on challenges, and immediate terminal feedback.
+          </p>
+        </div>
+
+        <div class="curriculum-grid">
+          
+          <!-- Lesson 1 -->
+          <a href="studio.html?lesson=1" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 01</span>
+                <span class="card-duration">⏱️ 60 mins</span>
               </div>
+              <h3 class="card-title">Why Code? The Problem-Solving Mindset</h3>
+              <p class="card-desc">Computational thinking, algorithmic recipes, and why humans remain the architects in the era of artificial intelligence.</p>
             </div>
-            <div class="ai-chat-input-bar">
-              <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Ask AI: e.g. 'Write a palindrome function with test cases'...">
-              <button id="aiChatSendBtn" class="btn-action btn-check">Send</button>
+            <div class="card-footer">
+              <span>Python &bull; Logic</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 2 -->
+          <a href="studio.html?lesson=2" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 02</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">How the Web Works: DevTools & The DOM</h3>
+              <p class="card-desc">Inspect live websites, explore the Document Object Model tree, and modify page content directly using browser DevTools.</p>
+            </div>
+            <div class="card-footer">
+              <span>Web &bull; DevTools</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 3 -->
+          <a href="studio.html?lesson=3" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 03</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">First Web App: Interactive Portfolio</h3>
+              <p class="card-desc">Personalize an interactive web application spanning HTML structure, CSS styling, and JavaScript interactivity with live browser preview.</p>
+            </div>
+            <div class="card-footer">
+              <span>HTML / CSS / JS</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 4 -->
+          <a href="studio.html?lesson=4" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 04</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Messy Data Cleanup with Regular Expressions</h3>
+              <p class="card-desc">Extract, scrub, and deduplicate contact records from messy scraped HTML using regular expressions and export clean CSV datasets.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Regex</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 5 -->
+          <a href="studio.html?lesson=5" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 05</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Event Optimization: Greedy Scheduling</h3>
+              <p class="card-desc">Solve real-world resource competition with the famous Earliest End Time greedy algorithm to maximize attended events without conflict.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Greedy Algorithms</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 6 -->
+          <a href="studio.html?lesson=6" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 06</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Middle Earth Routing: Nearest Neighbor</h3>
+              <p class="card-desc">Tackle the Traveling Salesperson Problem across Middle Earth coordinates using Manhattan distance and nearest neighbor optimization.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Maps & Graphs</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 7 -->
+          <a href="studio.html?lesson=7" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 07</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Leveraging AI in Coding: Co-Pilot Thinking</h3>
+              <p class="card-desc">Prompt engineering for programmers: critically evaluate AI-generated code, identify edge cases, and build automated verification test suites.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; AI Co-Pilot</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 8 -->
+          <a href="studio.html?lesson=8" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 08</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">2D Game Physics & Collisions</h3>
+              <p class="card-desc">Explore velocity vectors, gravity acceleration, boundary bounces, and bounding box collision detection in arcade mini-games.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Physics</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 9 -->
+          <a href="studio.html?lesson=9" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 09</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Live Data & Weather APIs</h3>
+              <p class="card-desc">Connect programs to real-world live information feeds, parse JSON payloads, and extract meaningful metrics from external web services.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; APIs</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 10 -->
+          <a href="studio.html?lesson=10" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 10</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Data Science & Statistics</h3>
+              <p class="card-desc">Harness programming to understand patterns in numbers: compute statistical averages, medians, outlier detection, and data summaries.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Data Science</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 11 -->
+          <a href="studio.html?lesson=11" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 11</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Cybersecurity Basics</h3>
+              <p class="card-desc">Discover the defensive side of coding: build Caesar ciphers, explore hashing fundamentals, and learn how to sanitize user input against attacks.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Security</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+          <!-- Lesson 12 -->
+          <a href="studio.html?lesson=12" class="curriculum-card">
+            <div>
+              <div class="card-top">
+                <span class="card-num">LESSON 12</span>
+                <span class="card-duration">⏱️ 60 mins</span>
+              </div>
+              <h3 class="card-title">Capstone Project Showcase</h3>
+              <p class="card-desc">Put every algorithmic and problem-solving tool to work: design, write, test, and present an original software project of your choice.</p>
+            </div>
+            <div class="card-footer">
+              <span>Python &bull; Capstone</span>
+              <span class="card-cta">Start ❯</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- The Community Story Section -->
+    <section class="story-section" id="story">
+      <div class="section-container">
+        <div class="story-box">
+          <div class="section-tag" style="text-align: left; margin-bottom: 8px;">The Origin</div>
+          <h3>From a Community Workshop to an Open Platform</h3>
+          <p>
+            OpenWay Code started as a free, in-person coding class hosted at United Way. The goal was straightforward: remove the intimidation factor, eliminate the confusing software installation barriers that turn young people away, and make computer science feel as welcoming and accessible as visiting a local public library.
+          </p>
+          <p>
+            Too many young students get discouraged before their first program even runs because of terminal errors, mismatched Python versions, or complicated IDE setups. OpenWay Code was engineered so that every student—regardless of whether they have the newest laptop or a shared library Chromebook—can click a link and immediately write, test, and master real code.
+          </p>
+          <p>
+            Today, this entire platform is open, free, and self-hosted with zero backend servers or recurring costs. Use it in community centers, classrooms, after-school programs, or for self-paced independent study.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Educators & Volunteer Facilitators Section -->
+    <section class="pillars-section" id="facilitators" style="background: var(--bg-app);">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-tag">For Teachers & Volunteers</div>
+          <h2 class="section-title">Built to support educators in the room</h2>
+          <p class="section-subtitle">
+            Whether you are a seasoned software engineer volunteering at a local youth center or a teacher leading your first CS elective, OpenWay Code provides built-in facilitator tools.
+          </p>
+        </div>
+
+        <div class="pillars-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+          <div class="pillar-card">
+            <div class="pillar-icon">🗝️</div>
+            <div class="pillar-title">Secret Loki Teacher Portal</div>
+            <div class="pillar-text">
+              Press <kbd>Alt+L</kbd> anytime inside the studio to open the teacher drawer. Access verified answer keys, lesson pacing tips, and external source materials.
             </div>
           </div>
 
-        </div>
-
-        <!-- Verification Feedback Banner -->
-        <div id="feedbackBanner" class="feedback-banner" style="display: none;">
-          <div id="feedbackText"></div>
-        </div>
-
-        <!-- Terminal Output Window -->
-        <div class="terminal-pane">
-          <div class="terminal-header">
-            <div class="terminal-dots">
-              <span class="terminal-dot dot-red"></span>
-              <span class="terminal-dot dot-yellow"></span>
-              <span class="terminal-dot dot-green"></span>
-            </div>
-            <div class="terminal-title">
-              <span>🖥️</span> Terminal Output
-            </div>
-            <div class="terminal-actions">
-              <button id="clearTermBtn" class="btn-term-action">Clear</button>
+          <div class="pillar-card">
+            <div class="pillar-icon">✨</div>
+            <div class="pillar-title">1-Click Solution Injection</div>
+            <div class="pillar-text">
+              Keep the class moving without typing from scratch. The Loki portal lets teachers inject working reference solutions directly into the editor for demonstrations.
             </div>
           </div>
 
-          <!-- Terminal Body Text -->
-          <div id="terminalOutput" class="terminal-body"><span class="term-info">💡 Click "Run ❯" or press ⌘+Enter to execute!</span>
-</div>
+          <div class="pillar-card">
+            <div class="pillar-icon">⏱️</div>
+            <div class="pillar-title">60-Minute Lesson Pacing</div>
+            <div class="pillar-text">
+              Each module follows a structured 4-stage cadence: 15m Concept Hook &rarr; 20m Guided Walkthrough &rarr; 15m Student Mission &rarr; 10m Student Demos.
+            </div>
+          </div>
         </div>
-
-      </section>
-
-    </main>
-
-  </div>
-
-  <!-- Loki Hidden Teacher Drawer -->
-  <div id="lokiOverlay" class="loki-overlay">
-    <div class="loki-drawer">
-      <div class="loki-header">
-        <div class="loki-title-group">
-          <span style="font-size: 20px;">🗝️</span>
-          <div class="loki-title">Loki Teacher Portal</div>
-        </div>
-        <button id="closeLokiBtn" class="btn-icon" title="Close (Esc)">✕</button>
       </div>
+    </section>
+  </main>
 
-      <div id="lokiBody" class="loki-content">
-        <!-- Rendered dynamically by app.js -->
+  <!-- Landing Footer -->
+  <footer class="landing-footer">
+    <div class="section-container">
+      <div class="footer-links">
+        <a href="studio.html" class="footer-link">Launch Studio</a>
+        <a href="#curriculum" class="footer-link">12-Week Curriculum</a>
+        <a href="#story" class="footer-link">United Way Story</a>
+        <a href="#facilitators" class="footer-link">Educator Tools</a>
+        <a href="https://github.com" target="_blank" class="footer-link">GitHub</a>
       </div>
+      <p style="margin-bottom: 8px;">
+        <strong>OpenWay Code</strong> &bull; Clear pathways into computer science for everyone.
+      </p>
+      <p style="font-size: 11.5px; color: var(--text-muted);">
+        100% Free & Open Source under the MIT License. Runs client-side with zero tracking or data collection.
+      </p>
     </div>
-  </div>
+  </footer>
 
-  <!-- In-Browser Python Engine (Local first, CDN fallback) -->
-  <script src="skulpt.min.js"></script>
-  <script src="skulpt-stdlib.js"></script>
+  <!-- Dynamic Progress & Theme Handler -->
   <script>
-    if (typeof Sk === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"><\\/script>');
-      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"><\\/script>');
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggleBtn');
+    let currentTheme = localStorage.getItem('openway_theme') || 'dark';
+    
+    function applyTheme(theme) {
+      currentTheme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('openway_theme', theme);
+      if (themeBtn) {
+        themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+    
+    applyTheme(currentTheme);
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+    }
+
+    // Dynamic Hero CTA based on student progress
+    const savedIndex = parseInt(localStorage.getItem('openway_last_index_v1'), 10);
+    const completedList = JSON.parse(localStorage.getItem('openway_completed_v1') || '[]');
+    const heroBtn = document.getElementById('heroStartBtn');
+    const headerBtn = document.getElementById('headerLaunchBtn');
+
+    if (!isNaN(savedIndex) && savedIndex > 0) {
+      const lessonNum = savedIndex + 1;
+      if (heroBtn) {
+        heroBtn.innerHTML = `<span>Resume Lesson ${lessonNum}</span> <span>❯</span>`;
+        heroBtn.href = `studio.html?lesson=${lessonNum}`;
+      }
+      if (headerBtn) {
+        headerBtn.textContent = `Resume Lesson ${lessonNum} ❯`;
+        headerBtn.href = `studio.html?lesson=${lessonNum}`;
+      }
     }
   </script>
-
-  <!-- Application Scripts -->
-  <script src="lessons.js"></script>
-  <script src="runner.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>
