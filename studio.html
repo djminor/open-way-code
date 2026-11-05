@@ -42,9 +42,9 @@
 
     <!-- Right Header Tools -->
     <div class="header-actions">
-      <!-- Hidden Loki Teacher Menu Toggle -->
-      <button id="lokiToggleBtn" class="btn-loki-toggle" title="Loki Teacher Portal & Answer Keys (Alt+L)">
-        <span>🗝️</span> Loki Portal
+      <!-- Classroom Instructor Projector Board Toggle -->
+      <button id="lokiToggleBtn" class="btn-instructor-toggle" title="Open Classroom Projector Board (Alt+L)">
+        <span>📽️</span> Instructor Board
       </button>
       <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme">☀️</button>
     </div>
@@ -223,20 +223,13 @@
 
   </div>
 
-  <!-- Loki Hidden Teacher Drawer -->
-  <div id="lokiOverlay" class="loki-overlay">
-    <div class="loki-drawer">
-      <div class="loki-header">
-        <div class="loki-title-group">
-          <span style="font-size: 20px;">🗝️</span>
-          <div class="loki-title">Loki Teacher Portal</div>
-        </div>
-        <button id="closeLokiBtn" class="btn-icon" title="Close (Esc)">✕</button>
-      </div>
-
-      <div id="lokiBody" class="loki-content">
-        <!-- Rendered dynamically by app.js -->
-      </div>
+  <!-- Instructor Classroom Projector Stage (Loki Presentation Mode) -->
+  <div id="lokiOverlay" class="instructor-overlay">
+    <div class="instructor-stage" id="instructorStage">
+      <!-- Top Stage Bar & Controls rendered by app.js -->
+      <div id="lokiHeader" class="instructor-header"></div>
+      <!-- Scrollable Stage Content rendered by app.js -->
+      <div id="lokiBody" class="instructor-body"></div>
     </div>
   </div>
 
@@ -252,6 +245,7 @@
 
   <!-- Application Scripts -->
   <script src="lessons.js"></script>
+  <script src="instructor_guides.js"></script>
   <script src="runner.js"></script>
   <script src="app.js"></script>
 </body>

@@ -79,16 +79,27 @@ Because OpenWay Code runs entirely client-side, GitHub Pages will host it for fr
 
 ---
 
-## 🗝️ Loki Teacher Portal
+## 📽️ Instructor Projector Board (Classroom Mode)
 
-Access teacher answer keys and instructional tools:
-- Click the **🗝️ Loki Portal** button in the header, OR
-- Press the keyboard shortcut: <kbd>Alt+L</kbd> (or <kbd>Ctrl+L</kbd>).
+Designed specifically for teachers projecting onto a classroom wall while students copy down and follow along with code in real time:
 
-**Features:**
-- **Pacing Guides**: 60-minute classroom breakdown (Concept hook → Guided walkthrough → Student challenge → Debrief).
-- **Verified Python Answer Keys**: Complete working solutions for all assignments.
-- **✨ Inject Answer into Code Editor**: 1-click solution injection to quickly demonstrate working code to the class.
+- **Inside Studio**: Press <kbd>Alt+L</kbd> (or click **`📽️ Instructor Board`** in the header).
+- **Dedicated Projector Window**: Open **[`instructor.html`](file:///Users/djsproul/Desktop/AntigravityDemo/instructor.html)** (or `http://localhost:8000/instructor`) to project on a second display while keeping your laptop screen free.
+
+### Key Classroom Features:
+1. **📋 Step-by-Step Copy Board**:
+   - Breaks down complex assignments into clear, paced steps (e.g. Step 1: Regex extraction → Step 2: Deduplication → Step 3: CSV export).
+   - Plain-English instructor talking points explaining *why* each line of code is written.
+   - Large syntax-colored code boxes with line numbers and 1-click copy.
+   - Classroom Checkpoint banners (e.g. *"✋ Thumbs-up check: Make sure everyone has typed line 12 before moving on"*).
+2. **🔍 Projector Font Zoom**:
+   - Adjust code size on the fly (`A-` / `16px` / `18px` / `22px` / `26px` / `A+`) so students in the back row can easily read every character.
+3. **▶ Live Demonstration Engine**:
+   - Run working reference code right on the projector board to show students the exact expected console output in large, high-contrast text.
+4. **📥 1-Click Code Injection**:
+   - Instantly inject the working solution into the student editor to demonstrate live fixes or reset the classroom environment.
+5. **💬 Teacher Notes & Pacing**:
+   - 60-minute time allocations, live questions to ask the room, and common student gotchas to watch out for.
 
 ---
 

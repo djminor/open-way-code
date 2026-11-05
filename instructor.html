@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenWay Code — Classroom Instructor Projector Board</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body.projector-view {
+      background: #0f131a;
+      color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-sans);
+    }
+    .projector-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #191f2c;
+      border-bottom: 1px solid #2d3648;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .projector-stage-container {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+    }
+    .lesson-selector {
+      background: #11141c;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+    .lesson-selector:focus {
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="projector-view">
+
+  <!-- Projector Navigation Bar -->
+  <header class="projector-nav">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="studio.html" class="btn-instructor-action" style="text-decoration: none;" title="Return to Student Studio">
+        ‹ Student Studio
+      </a>
+      <span class="projector-badge">📽️ Projector View</span>
+      <select id="lessonSelect" class="lesson-selector" title="Switch lesson to project">
+        <!-- Rendered dynamically -->
+      </select>
+    </div>
+
+    <div class="instructor-nav-tabs">
+      <button class="instructor-tab-btn active" id="tabBtnSteps">
+        <span>📋</span> Step-by-Step Board
+      </button>
+      <button class="instructor-tab-btn" id="tabBtnSolution">
+        <span>💻</span> Full Solution
+      </button>
+      <button class="instructor-tab-btn" id="tabBtnNotes">
+        <span>💬</span> Prompts &amp; Pacing
+      </button>
+    </div>
+
+    <div class="instructor-controls">
+      <div class="zoom-group">
+        <span>Font:</span>
+        <button class="btn-zoom" id="btnZoomDown" title="Smaller font">A-</button>
+        <span id="zoomDisplay" style="font-weight:700; color:#fff; min-width: 32px; text-align: center;">18px</span>
+        <button class="btn-zoom" id="btnZoomUp" title="Larger font for back row">A+</button>
+      </div>
+      <button id="btnRunProjectorDemo" class="btn-instructor-action btn-run-demo" title="Run demonstration code on projector">
+        <span>▶</span> Run Demo
+      </button>
+    </div>
+  </header>
+
+  <!-- Projector Stage Body -->
+  <main class="projector-stage-container" id="projectorContainer">
+    <div id="projectorBody" class="projector-scale-18">
+      <!-- Rendered dynamically -->
+    </div>
+  </main>
+
+  <!-- In-Browser Python Engine (Local first, CDN fallback) -->
+  <script src="skulpt.min.js"></script>
+  <script src="skulpt-stdlib.js"></script>
+  <script>
+    if (typeof Sk === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"><\\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"><\\/script>');
+    }
+  </script>
+
+  <!-- Application Scripts -->
+  <script src="lessons.js"></script>
+  <script src="instructor_guides.js"></script>
+  <script src="runner.js"></script>
+
+  <!-- Dedicated Standalone Projector Controller -->
+  <script>
+    (function() {
+      PlaygroundRunner.init();
+
+      let currentLessonId = 1;
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramLesson = parseInt(urlParams.get('lesson'), 10);
+      if (!isNaN(paramLesson) && paramLesson >= 1 && paramLesson <= LESSONS_DATA.length) {
+        currentLessonId = paramLesson;
+      }
+
+      let currentTab = 'steps';
+      let currentZoom = parseInt(localStorage.getItem('openway_projector_zoom') || '18', 10);
+      let demoOutput = '';
+
+      const lessonSelect = document.getElementById('lessonSelect');
+      const projectorBody = document.getElementById('projectorBody');
+      const zoomDisplay = document.getElementById('zoomDisplay');
+
+      // Populate lesson selector
+      LESSONS_DATA.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.textContent = `Lesson ${l.id}: ${l.title}`;
+        if (l.id === currentLessonId) opt.selected = true;
+        lessonSelect.appendChild(opt);
+      });
+
+      lessonSelect.addEventListener('change', (e) => {
+        currentLessonId = parseInt(e.target.value, 10);
+        demoOutput = '';
+        render();
+      });
+
+      function setZoom(size) {
+        const sizes = [16, 18, 22, 26];
+        if (!sizes.includes(size)) return;
+        currentZoom = size;
+        localStorage.setItem('openway_projector_zoom', size);
+        zoomDisplay.textContent = size + 'px';
+        projectorBody.className = `projector-scale-${size}`;
+      }
+
+      document.getElementById('btnZoomDown').addEventListener('click', () => {
+        const sizes = [16, 18, 22, 26];
+        const idx = sizes.indexOf(currentZoom);
+        if (idx > 0) setZoom(sizes[idx - 1]);
+      });
+
+      document.getElementById('btnZoomUp').addEventListener('click', () => {
+        const sizes = [16, 18, 22, 26];
+        const idx = sizes.indexOf(currentZoom);
+        if (idx < sizes.length - 1) setZoom(sizes[idx + 1]);
+      });
+
+      document.getElementById('tabBtnSteps').addEventListener('click', () => {
+        currentTab = 'steps';
+        updateTabButtons();
+        render();
+      });
+
+      document.getElementById('tabBtnSolution').addEventListener('click', () => {
+        currentTab = 'solution';
+        updateTabButtons();
+        render();
+      });
+
+      document.getElementById('tabBtnNotes').addEventListener('click', () => {
+        currentTab = 'notes';
+        updateTabButtons();
+        render();
+      });
+
+      function updateTabButtons() {
+        document.getElementById('tabBtnSteps').classList.toggle('active', currentTab === 'steps');
+        document.getElementById('tabBtnSolution').classList.toggle('active', currentTab === 'solution');
+        document.getElementById('tabBtnNotes').classList.toggle('active', currentTab === 'notes');
+      }
+
+      document.getElementById('btnRunProjectorDemo').addEventListener('click', async () => {
+        const lesson = LESSONS_DATA.find(l => l.id === currentLessonId);
+        if (!lesson || !lesson.teacherSolution) return;
+
+        demoOutput = "⏳ Running live demonstration in Python...\n";
+        render();
+
+        const files = { ...lesson.files };
+        const result = await PlaygroundRunner.runPython(lesson.teacherSolution, files, {
+          onFileWritten: (fn, content) => { files[fn] = content; }
+        });
+
+        if (result.success) {
+          demoOutput = result.output || "(Demonstration completed cleanly with no printed output)";
+        } else {
+          demoOutput = "❌ Demonstration Error:\n" + (result.error || "Unknown execution error");
+        }
+        render();
+      });
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function render() {
+        setZoom(currentZoom);
+        const lesson = LESSONS_DATA.find(l => l.id === currentLessonId);
+        const guide = (typeof INSTRUCTOR_GUIDES !== 'undefined' && INSTRUCTOR_GUIDES[lesson.id]) || lesson.instructorGuide || {
+          goal: lesson.summary,
+          pacing: { hook: "10 mins", liveCoding: "25 mins", studentWork: "20 mins", debrief: "5 mins" },
+          steps: lesson.teacherSolution ? [{ num: 1, title: "Solution Code", prompt: "Guide students to copy this reference code.", code: lesson.teacherSolution, checkpoint: "Check: Did everyone copy this and test run?" }] : [],
+          discussionQuestions: ["What does this algorithm achieve step-by-step?"],
+          gotchas: ["Watch out for indentation and spelling errors!"]
+        };
+
+        let html = `
+          <!-- Goal Banner -->
+          <div class="instructor-goal-card">
+            <span class="goal-badge">Classroom Mission</span>
+            <div class="goal-text">${guide.goal}</div>
+          </div>
+        `;
+
+        if (currentTab === 'steps') {
+          const steps = guide.steps || [];
+          html += `<div class="step-container">`;
+          steps.forEach(s => {
+            html += `
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-num-badge">Step ${s.num}</span>
+                  <span class="step-title-text">${s.title}</span>
+                </div>
+                <div class="step-prompt-box">
+                  🗣️ <strong>Instructor Prompt:</strong> ${s.prompt}
+                </div>
+                <div class="step-code-box">
+                  <button class="btn-copy-step" data-step-code="${encodeURIComponent(s.code)}">📋 Copy Snippet</button>
+                  <pre class="step-code-pre"><code>${escapeHtml(s.code)}</code></pre>
+                </div>
+                <div class="step-checkpoint">
+                  ${s.checkpoint}
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        } else if (currentTab === 'solution') {
+          if (lesson.teacherSolution) {
+            html += `
+              <div class="full-solution-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                  <span style="font-size:13px; font-weight:700; color:#93c5fd;">COMPLETE PYTHON SOLUTION</span>
+                  <button class="btn-copy-step" data-step-code="${encodeURIComponent(lesson.teacherSolution)}" style="position:static;">📋 Copy Entire Script</button>
+                </div>
+                <pre class="full-solution-pre"><code>${escapeHtml(lesson.teacherSolution)}</code></pre>
+              </div>
+            `;
+          } else {
+            html += `<div class="notes-card"><h4>No Reference Solution</h4><p style="font-size:14px; color:var(--text-secondary);">Interactive lab / placeholder.</p></div>`;
+          }
+        } else if (currentTab === 'notes') {
+          const pacing = guide.pacing || {};
+          const questions = guide.discussionQuestions || [];
+          const gotchas = guide.gotchas || [];
+          html += `
+            <div class="notes-grid">
+              <div class="notes-card">
+                <h4>⏱️ 60-Minute Classroom Pacing</h4>
+                <ul class="notes-list">
+                  <li><strong>Hook:</strong> ${pacing.hook || "10 mins"}</li>
+                  <li><strong>Live Coding:</strong> ${pacing.liveCoding || "25 mins"}</li>
+                  <li><strong>Student Practice:</strong> ${pacing.studentWork || "20 mins"}</li>
+                  <li><strong>Debrief:</strong> ${pacing.debrief || "5 mins"}</li>
+                </ul>
+              </div>
+              <div class="notes-card">
+                <h4>💬 Questions to Ask the Room</h4>
+                <ul class="notes-list">${questions.map(q => `<li>${q}</li>`).join('')}</ul>
+              </div>
+              <div class="notes-card">
+                <h4>⚠️ Common Student Gotchas</h4>
+                <ul class="notes-list">${gotchas.map(g => `<li>${g}</li>`).join('')}</ul>
+              </div>
+            </div>
+          `;
+        }
+
+        if (demoOutput) {
+          html += `
+            <div class="projector-terminal-card">
+              <div class="projector-term-header">
+                <span>🖥️ Projector Demonstration Terminal Output</span>
+                <button class="btn-term-action" id="btnClearDemoOutput" style="color:#94a3b8;">Clear</button>
+              </div>
+              <div class="projector-term-body">${escapeHtml(demoOutput)}</div>
+            </div>
+          `;
+        }
+
+        projectorBody.innerHTML = html;
+
+        // Wire copy buttons
+        projectorBody.querySelectorAll('.btn-copy-step').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const raw = decodeURIComponent(btn.getAttribute('data-step-code') || '');
+            navigator.clipboard.writeText(raw).then(() => {
+              const orig = btn.textContent;
+              btn.textContent = '✓ Copied!';
+              setTimeout(() => btn.textContent = orig, 1500);
+            });
+          });
+        });
+
+        const clearBtn = document.getElementById('btnClearDemoOutput');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            demoOutput = '';
+            render();
+          });
+        }
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>

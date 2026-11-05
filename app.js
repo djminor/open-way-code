@@ -88,10 +88,15 @@ class CodingApp {
     this.feedbackBanner = document.getElementById('feedbackBanner');
     this.feedbackText = document.getElementById('feedbackText');
 
-    // Loki Teacher Modal
+    // Loki / Instructor Classroom Projector Stage
     this.lokiOverlay = document.getElementById('lokiOverlay');
-    this.closeLokiBtn = document.getElementById('closeLokiBtn');
+    this.instructorStage = document.getElementById('instructorStage');
+    this.lokiHeader = document.getElementById('lokiHeader');
     this.lokiBody = document.getElementById('lokiBody');
+    this.instructorTab = 'steps'; // 'steps', 'solution', 'notes'
+    this.instructorZoom = parseInt(localStorage.getItem('openway_projector_zoom') || '18', 10);
+    this.instructorFilterStep = 'all';
+    this.instructorDemoOutput = '';
 
     // AI Chat Elements
     this.aiChatBody = document.getElementById('aiChatBody');
@@ -527,9 +532,11 @@ class CodingApp {
   }
 
   // --------------------------------------------------------------------------
-  // Loki Hidden Teacher Portal
+  // --------------------------------------------------------------------------
+  // Instructor Classroom Projector Board (Loki Presentation Mode)
   // --------------------------------------------------------------------------
   toggleLokiModal(forceState) {
+    if (!this.lokiOverlay) return;
     const isOpen = forceState !== undefined ? forceState : !this.lokiOverlay.classList.contains('open');
     this.lokiOverlay.classList.toggle('open', isOpen);
     if (isOpen) {
@@ -537,61 +544,291 @@ class CodingApp {
     }
   }
 
-  renderLokiContent() {
+  setInstructorZoom(targetSize) {
+    const validSizes = [16, 18, 22, 26];
+    let nextSize = validSizes.includes(targetSize) ? targetSize : 18;
+    this.instructorZoom = nextSize;
+    localStorage.setItem('openway_projector_zoom', nextSize);
+    if (this.instructorStage) {
+      this.instructorStage.className = `instructor-stage projector-scale-${nextSize}`;
+    }
+    this.renderLokiContent();
+  }
+
+  async runInstructorProjectorDemo() {
     const lesson = this.lessons[this.currentLessonIndex];
-    let html = `
-      <div class="loki-card">
-        <h4>Teacher Overview & Pacing (60 Mins)</h4>
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom: 8px;">
-          <strong>Lesson ${lesson.id}:</strong> ${lesson.title}
-        </p>
-        <ul style="font-size: 11.5px; color: var(--text-muted); padding-left: 16px; line-height: 1.6;">
-          <li><strong>00-15m:</strong> Concept hook, problem framing, real-world analogies.</li>
-          <li><strong>15-35m:</strong> Guided walkthrough of starter code and algorithms.</li>
-          <li><strong>35-50m:</strong> Hands-on student challenge & pair debugging.</li>
-          <li><strong>50-60m:</strong> Student demonstrations & debrief.</li>
-        </ul>
+    if (!lesson.teacherSolution) return;
+
+    this.instructorDemoOutput = "⏳ Running live demonstration in Python...\n";
+    this.renderLokiContent();
+
+    const files = { ...lesson.files };
+    const result = await PlaygroundRunner.runPython(lesson.teacherSolution, files, {
+      onFileWritten: (fn, content) => {
+        files[fn] = content;
+      }
+    });
+
+    if (result.success) {
+      this.instructorDemoOutput = result.output || "(Demonstration completed cleanly with no printed output)";
+    } else {
+      this.instructorDemoOutput = "❌ Demonstration Error:\n" + (result.error || "Unknown execution error");
+    }
+    this.renderLokiContent();
+  }
+
+  renderLokiContent() {
+    if (!this.lokiHeader || !this.lokiBody) return;
+    const lesson = this.lessons[this.currentLessonIndex];
+    const guide = lesson.instructorGuide || (typeof INSTRUCTOR_GUIDES !== 'undefined' && INSTRUCTOR_GUIDES[lesson.id]) || {
+      goal: lesson.summary,
+      pacing: {
+        hook: "10 mins — Problem framing and real-world connection",
+        liveCoding: "25 mins — Step-by-step code demonstration on the board",
+        studentWork: "20 mins — Students copy, test, and tweak",
+        debrief: "5 mins — Classroom debrief & verification"
+      },
+      steps: lesson.teacherSolution ? [
+        {
+          num: 1,
+          title: "Complete Solution Walkthrough",
+          prompt: "Display and walk through the reference solution while students follow along.",
+          code: lesson.teacherSolution,
+          checkpoint: "✋ Check: Did everyone copy this code and run it?"
+        }
+      ] : [],
+      discussionQuestions: [
+        "What does this algorithm achieve step-by-step?",
+        "What happens if inputs or data types are invalid?"
+      ],
+      gotchas: [
+        "Watch out for colons, casing, and indentation errors!"
+      ]
+    };
+
+    // Apply zoom class
+    if (this.instructorStage) {
+      this.instructorStage.className = `instructor-stage projector-scale-${this.instructorZoom}`;
+    }
+
+    // 1. Render Top Header Bar
+    this.lokiHeader.innerHTML = `
+      <div class="instructor-title-group">
+        <span class="projector-badge">📽️ Projector Stage</span>
+        <span class="instructor-lesson-title">Lesson ${lesson.id}: ${lesson.title}</span>
+      </div>
+
+      <div class="instructor-nav-tabs">
+        <button class="instructor-tab-btn ${this.instructorTab === 'steps' ? 'active' : ''}" id="tabBtnSteps">
+          <span>📋</span> Step-by-Step Board
+        </button>
+        <button class="instructor-tab-btn ${this.instructorTab === 'solution' ? 'active' : ''}" id="tabBtnSolution">
+          <span>💻</span> Full Solution
+        </button>
+        <button class="instructor-tab-btn ${this.instructorTab === 'notes' ? 'active' : ''}" id="tabBtnNotes">
+          <span>💬</span> Prompts &amp; Pacing
+        </button>
+      </div>
+
+      <div class="instructor-controls">
+        <div class="zoom-group">
+          <span>Font:</span>
+          <button class="btn-zoom" id="btnZoomDown" title="Smaller font">A-</button>
+          <span style="font-weight:700; color:#fff; min-width: 32px; text-align: center;">${this.instructorZoom}px</span>
+          <button class="btn-zoom" id="btnZoomUp" title="Larger font for back row">A+</button>
+        </div>
+        ${lesson.teacherSolution ? `
+          <button id="btnRunProjectorDemo" class="btn-instructor-action btn-run-demo" title="Run demonstration code on projector">
+            <span>▶</span> Run Demo
+          </button>
+          <button id="btnInjectSolution" class="btn-instructor-action" title="Inject solution into student playground">
+            <span>📥</span> Inject to Studio
+          </button>
+        ` : ''}
+        <a href="instructor.html?lesson=${lesson.id}" target="_blank" class="btn-instructor-action" title="Open dedicated projector window for second monitor">
+          <span>↗</span> Pop Out
+        </a>
+        <button id="closeLokiBtn" class="btn-icon" title="Close Projector Stage (Esc)">✕</button>
       </div>
     `;
 
-    if (lesson.teacherSolution) {
-      html += `
-        <div class="loki-card">
-          <h4>🔑 Hidden Answer Key (Lesson ${lesson.id})</h4>
-          <p style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 8px;">
-            Full working code with all TODOs completed. You can copy this or click to inject directly into the playground!
-          </p>
-          <pre class="code-preview" style="max-height: 250px; overflow-y: auto;"><code>${this.escapeHtml(lesson.teacherSolution)}</code></pre>
-          <button id="injectAnswerBtn" class="btn-inject-answer">✨ Inject Answer into Code Editor</button>
-        </div>
-      `;
-    } else {
-      html += `
-        <div class="loki-card">
-          <h4>Teacher Notes</h4>
-          <p style="font-size:12px; color:var(--text-secondary);">
-            Encourage students to experiment, make deliberate errors, and read the console output to build debugging resilience!
-          </p>
+    // 2. Render Stage Body
+    let bodyHtml = `
+      <!-- Goal Banner -->
+      <div class="instructor-goal-card">
+        <span class="goal-badge">Classroom Mission</span>
+        <div class="goal-text">${guide.goal}</div>
+      </div>
+    `;
+
+    // Tab 1: Step-by-Step Board
+    if (this.instructorTab === 'steps') {
+      const steps = guide.steps || [];
+      if (steps.length === 0 && lesson.teacherSolution) {
+        bodyHtml += `
+          <div class="step-card">
+            <div class="step-header">
+              <span class="step-num-badge">Reference</span>
+              <span class="step-title-text">Complete Lesson Code</span>
+            </div>
+            <div class="step-prompt-box">
+              🗣️ <strong>Instructor Prompt:</strong> Guide students to copy this complete implementation into their editor.
+            </div>
+            <div class="step-code-box">
+              <button class="btn-copy-step" data-step-code="${encodeURIComponent(lesson.teacherSolution)}">📋 Copy Code</button>
+              <pre class="step-code-pre"><code>${this.escapeHtml(lesson.teacherSolution)}</code></pre>
+            </div>
+          </div>
+        `;
+      } else {
+        bodyHtml += `<div class="step-container">`;
+        steps.forEach((s) => {
+          bodyHtml += `
+            <div class="step-card">
+              <div class="step-header">
+                <span class="step-num-badge">Step ${s.num}</span>
+                <span class="step-title-text">${s.title}</span>
+              </div>
+              <div class="step-prompt-box">
+                🗣️ <strong>Instructor Prompt:</strong> ${s.prompt}
+              </div>
+              <div class="step-code-box">
+                <button class="btn-copy-step" data-step-code="${encodeURIComponent(s.code)}">📋 Copy Snippet</button>
+                <pre class="step-code-pre"><code>${this.escapeHtml(s.code)}</code></pre>
+              </div>
+              <div class="step-checkpoint">
+                ${s.checkpoint}
+              </div>
+            </div>
+          `;
+        });
+        bodyHtml += `</div>`;
+      }
+    }
+
+    // Tab 2: Full Solution
+    if (this.instructorTab === 'solution') {
+      if (lesson.teacherSolution) {
+        bodyHtml += `
+          <div class="full-solution-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <span style="font-size:13px; font-weight:700; color:#93c5fd;">COMPLETE PYTHON SOLUTION</span>
+              <button class="btn-copy-step" data-step-code="${encodeURIComponent(lesson.teacherSolution)}" style="position:static;">📋 Copy Entire Script</button>
+            </div>
+            <pre class="full-solution-pre"><code>${this.escapeHtml(lesson.teacherSolution)}</code></pre>
+          </div>
+        `;
+      } else {
+        bodyHtml += `
+          <div class="notes-card">
+            <h4>No Reference Solution</h4>
+            <p style="font-size:14px; color:var(--text-secondary);">This module is an interactive lab or placeholder. Encourage student experimentation!</p>
+          </div>
+        `;
+      }
+    }
+
+    // Tab 3: Notes & Pacing
+    if (this.instructorTab === 'notes') {
+      const pacing = guide.pacing || {};
+      const questions = guide.discussionQuestions || [];
+      const gotchas = guide.gotchas || [];
+
+      bodyHtml += `
+        <div class="notes-grid">
+          <div class="notes-card">
+            <h4>⏱️ 60-Minute Classroom Pacing</h4>
+            <ul class="notes-list">
+              <li><strong>Hook:</strong> ${pacing.hook || "10 mins"}</li>
+              <li><strong>Live Coding:</strong> ${pacing.liveCoding || "25 mins"}</li>
+              <li><strong>Student Practice:</strong> ${pacing.studentWork || "20 mins"}</li>
+              <li><strong>Debrief:</strong> ${pacing.debrief || "5 mins"}</li>
+            </ul>
+          </div>
+
+          <div class="notes-card">
+            <h4>💬 Questions to Ask the Room</h4>
+            <ul class="notes-list">
+              ${questions.map(q => `<li>${q}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="notes-card">
+            <h4>⚠️ Common Student Gotchas</h4>
+            <ul class="notes-list">
+              ${gotchas.map(g => `<li>${g}</li>`).join('')}
+            </ul>
+          </div>
         </div>
       `;
     }
 
-    if (lesson.trinketUrl) {
-      html += `
-        <div class="loki-card">
-          <h4>Original Trinket Reference</h4>
-          <p style="font-size: 11.5px; color: var(--text-secondary);">
-            External Source: <a href="${lesson.trinketUrl}" target="_blank" style="color:var(--accent-color);">${lesson.trinketUrl}</a>
-          </p>
+    // Live Projector Terminal output (if demo was run)
+    if (this.instructorDemoOutput) {
+      bodyHtml += `
+        <div class="projector-terminal-card">
+          <div class="projector-term-header">
+            <span>🖥️ Projector Demonstration Terminal Output</span>
+            <button class="btn-term-action" id="btnClearDemoOutput" style="color:#94a3b8;">Clear</button>
+          </div>
+          <div class="projector-term-body">${this.escapeHtml(this.instructorDemoOutput)}</div>
         </div>
       `;
     }
 
-    this.lokiBody.innerHTML = html;
+    this.lokiBody.innerHTML = bodyHtml;
 
-    const injectBtn = document.getElementById('injectAnswerBtn');
-    if (injectBtn && lesson.teacherSolution) {
-      injectBtn.addEventListener('click', () => {
+    // 3. Attach Events
+    const closeBtn = document.getElementById('closeLokiBtn');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.toggleLokiModal(false));
+
+    const tabBtnSteps = document.getElementById('tabBtnSteps');
+    if (tabBtnSteps) tabBtnSteps.addEventListener('click', () => {
+      this.instructorTab = 'steps';
+      this.renderLokiContent();
+    });
+
+    const tabBtnSolution = document.getElementById('tabBtnSolution');
+    if (tabBtnSolution) tabBtnSolution.addEventListener('click', () => {
+      this.instructorTab = 'solution';
+      this.renderLokiContent();
+    });
+
+    const tabBtnNotes = document.getElementById('tabBtnNotes');
+    if (tabBtnNotes) tabBtnNotes.addEventListener('click', () => {
+      this.instructorTab = 'notes';
+      this.renderLokiContent();
+    });
+
+    // Zoom buttons
+    const btnZoomDown = document.getElementById('btnZoomDown');
+    if (btnZoomDown) btnZoomDown.addEventListener('click', () => {
+      const sizes = [16, 18, 22, 26];
+      const curIdx = sizes.indexOf(this.instructorZoom);
+      if (curIdx > 0) this.setInstructorZoom(sizes[curIdx - 1]);
+    });
+
+    const btnZoomUp = document.getElementById('btnZoomUp');
+    if (btnZoomUp) btnZoomUp.addEventListener('click', () => {
+      const sizes = [16, 18, 22, 26];
+      const curIdx = sizes.indexOf(this.instructorZoom);
+      if (curIdx < sizes.length - 1) this.setInstructorZoom(sizes[curIdx + 1]);
+    });
+
+    // Run Demo button
+    const btnRunDemo = document.getElementById('btnRunProjectorDemo');
+    if (btnRunDemo) btnRunDemo.addEventListener('click', () => this.runInstructorProjectorDemo());
+
+    const btnClearDemo = document.getElementById('btnClearDemoOutput');
+    if (btnClearDemo) btnClearDemo.addEventListener('click', () => {
+      this.instructorDemoOutput = '';
+      this.renderLokiContent();
+    });
+
+    // Inject Solution button
+    const btnInject = document.getElementById('btnInjectSolution');
+    if (btnInject && lesson.teacherSolution) {
+      btnInject.addEventListener('click', () => {
         const targetFile = this.isWebLesson() ? 'index.html' : 'main.py';
         this.filesStore[lesson.id][targetFile] = lesson.teacherSolution;
         localStorage.setItem('openway_files_v1', JSON.stringify(this.filesStore));
@@ -600,10 +837,26 @@ class CodingApp {
         this.renderTabs(Object.keys(this.filesStore[lesson.id]));
         this.loadActiveFileContent();
         this.toggleLokiModal(false);
-        this.appendTerminalOutput(`\n🪄 Loki Magic: Teacher solution injected into ${targetFile}!\n`, 'term-info');
+        this.appendTerminalOutput(`\n🪄 Loki Magic: Reference code injected into ${targetFile}!\n`, 'term-info');
         this.runCurrentCode();
       });
     }
+
+    // Step copy buttons
+    const copyBtns = this.lokiBody.querySelectorAll('.btn-copy-step');
+    copyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rawCode = decodeURIComponent(btn.getAttribute('data-step-code') || '');
+        navigator.clipboard.writeText(rawCode).then(() => {
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          setTimeout(() => btn.textContent = originalText, 1500);
+        }).catch(() => {
+          // Fallback if clipboard API is restricted
+          btn.textContent = '✓ Selected!';
+        });
+      });
+    });
   }
 
   // --------------------------------------------------------------------------
