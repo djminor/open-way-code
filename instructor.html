@@ -53,6 +53,156 @@
     .lesson-selector:focus {
       border-color: #3b82f6;
     }
+
+    /* Projector Map Slideshow Styles */
+    .projector-slideshow-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+    .projector-slide-card {
+      width: 100%;
+      max-width: 1100px;
+      background: #151b26;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+    .projector-slide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: #19202f;
+      border-bottom: 1px solid #2d3648;
+      flex-wrap: nowrap;
+      gap: 16px;
+    }
+    .projector-slide-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+    .projector-slide-title-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .projector-slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .projector-slide-img-wrap {
+      width: 100%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .projector-slide-img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+    }
+    .projector-slide-footer {
+      padding: 16px 20px;
+      background: #151b26;
+      border-top: 1px solid #2d3648;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .projector-slide-prompt {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-left: 4px solid #3b82f6;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 15.5px;
+      line-height: 1.55;
+      color: #f1f5f9;
+    }
+    .projector-slide-pills {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 180px;
+      flex-shrink: 0;
+    }
+    .projector-pill-ellipsis {
+      font-size: 14px;
+      color: #94a3b8;
+      font-weight: 700;
+      padding: 0 4px;
+      user-select: none;
+    }
+    .btn-proj-pill {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      background: #1e2638;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-proj-pill:hover {
+      background: #2b354d;
+      color: #ffffff;
+      border-color: #60a5fa;
+    }
+    .btn-proj-pill.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+    .btn-proj-nav {
+      background: #1e2638;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-proj-nav:hover:not(:disabled) {
+      background: #2b354d;
+      border-color: #60a5fa;
+    }
+    .btn-proj-nav:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-proj-nav.primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+    }
+    .btn-proj-nav.primary:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
   </style>
 </head>
 <body class="projector-view">
@@ -62,6 +212,9 @@
     <div style="display: flex; align-items: center; gap: 14px;">
       <a href="studio.html" class="btn-instructor-action" style="text-decoration: none;" title="Return to Student Studio">
         ‹ Student Studio
+      </a>
+      <a href="playground.html" class="btn-instructor-action" style="text-decoration: none;" title="Open Student Playground">
+        🎮 Playground
       </a>
       <span class="projector-badge">📽️ Projector View</span>
       <select id="lessonSelect" class="lesson-selector" title="Switch lesson to project">
@@ -78,6 +231,9 @@
       </button>
       <button class="instructor-tab-btn" id="tabBtnNotes">
         <span>💬</span> Prompts &amp; Pacing
+      </button>
+      <button class="instructor-tab-btn" id="tabBtnMap" style="display: none;">
+        <span>🗺️</span> Map Progression
       </button>
     </div>
 
@@ -121,6 +277,79 @@
     (function() {
       PlaygroundRunner.init();
 
+      const MIDDLE_EARTH_SLIDES = [
+        {
+          step: 1,
+          title: "1. Hobbiton (The Shire)",
+          badge: "Location 1 of 7",
+          caption: "The Fellowship starts at Hobbiton: coordinate (5, 8). Introduce the starting point to the students.",
+          src: "assets/middle_earth_slides/middle_earth_slide_0.png"
+        },
+        {
+          step: 2,
+          title: "2. Lorien",
+          badge: "Location 2 of 7",
+          caption: "Stop 2 arrives: Lorien at (6.5, 10.5). Ask the room: Look how far across the Misty Mountains this is if we go straight there!",
+          src: "assets/middle_earth_slides/middle_earth_slide_1.png"
+        },
+        {
+          step: 3,
+          title: "3. Ettenmoors",
+          badge: "Location 3 of 7",
+          caption: "Stop 3 arrives: Ettenmoors at (9.5, 9.25). Now we have to backtrack north toward Angmar! Point out how wasteful this is.",
+          src: "assets/middle_earth_slides/middle_earth_slide_2.png"
+        },
+        {
+          step: 4,
+          title: "4. Erebor (The Lonely Mountain)",
+          badge: "Location 4 of 7",
+          caption: "Stop 4 arrives: Erebor at (9.5, 13.8). We head all the way east past Mirkwood.",
+          src: "assets/middle_earth_slides/middle_earth_slide_3.png"
+        },
+        {
+          step: 5,
+          title: "5. Rohan",
+          badge: "Location 5 of 7",
+          caption: "Stop 5 arrives: Rohan at (5, 11). From Erebor all the way back southwest down to the plains of Rohan!",
+          src: "assets/middle_earth_slides/middle_earth_slide_4.png"
+        },
+        {
+          step: 6,
+          title: "6. Gondor",
+          badge: "Location 6 of 7",
+          caption: "Stop 6 arrives: Gondor at (3, 10), even further southwest under the White Mountains.",
+          src: "assets/middle_earth_slides/middle_earth_slide_5.png"
+        },
+        {
+          step: 7,
+          title: "7. Weathertop",
+          badge: "All 7 Destinations",
+          caption: "Stop 7 arrives: Weathertop at (8.5, 8). All 7 destinations plotted! Notice the chaotic, crisscrossing lines if we visit stops in the order received.",
+          src: "assets/middle_earth_slides/middle_earth_slide_6.png"
+        },
+        {
+          step: 8,
+          title: "Unoptimized Order Summary",
+          badge: "Arrival Sequence",
+          caption: "The raw arrival list: Hobbiton ➔ Lorien ➔ Ettenmoors ➔ Erebor ➔ Rohan ➔ Gondor ➔ Weathertop = 41.5 leagues of zigzag travel!",
+          src: "assets/middle_earth_slides/middle_earth_slide_7.png"
+        },
+        {
+          step: 9,
+          title: "Cartesian Grid Overlay",
+          badge: "Coordinate Grid",
+          caption: "Explain Cartesian coordinate grid overlay. This lets us calculate Manhattan Distance: |x1 - x2| + |y1 - y2| between each point.",
+          src: "assets/middle_earth_slides/middle_earth_slide_8.png"
+        },
+        {
+          step: 10,
+          title: "Destination Coordinates Key",
+          badge: "Coordinates Reference",
+          caption: "Coordinates reference sheet for the coding challenge. Next: Students will write the greedy algorithm to find the shortest route!",
+          src: "assets/middle_earth_slides/middle_earth_slide_9.png"
+        }
+      ];
+
       let currentLessonId = 1;
       const urlParams = new URLSearchParams(window.location.search);
       const paramLesson = parseInt(urlParams.get('lesson'), 10);
@@ -128,13 +357,15 @@
         currentLessonId = paramLesson;
       }
 
-      let currentTab = 'steps';
+      let currentTab = currentLessonId === 6 ? 'map' : 'steps';
+      let projSlideIndex = 0;
       let currentZoom = parseInt(localStorage.getItem('openway_projector_zoom') || '18', 10);
       let demoOutput = '';
 
       const lessonSelect = document.getElementById('lessonSelect');
       const projectorBody = document.getElementById('projectorBody');
       const zoomDisplay = document.getElementById('zoomDisplay');
+      const tabBtnMap = document.getElementById('tabBtnMap');
 
       // Populate lesson selector
       LESSONS_DATA.forEach(l => {
@@ -148,6 +379,12 @@
       lessonSelect.addEventListener('change', (e) => {
         currentLessonId = parseInt(e.target.value, 10);
         demoOutput = '';
+        if (currentLessonId === 6) {
+          currentTab = 'map';
+        } else if (currentTab === 'map') {
+          currentTab = 'steps';
+        }
+        updateTabButtons();
         render();
       });
 
@@ -190,11 +427,53 @@
         render();
       });
 
+      if (tabBtnMap) {
+        tabBtnMap.addEventListener('click', () => {
+          currentTab = 'map';
+          updateTabButtons();
+          render();
+        });
+      }
+
       function updateTabButtons() {
+        if (tabBtnMap) {
+          tabBtnMap.style.display = currentLessonId === 6 ? 'inline-flex' : 'none';
+        }
+        if (currentLessonId !== 6 && currentTab === 'map') {
+          currentTab = 'steps';
+        }
         document.getElementById('tabBtnSteps').classList.toggle('active', currentTab === 'steps');
         document.getElementById('tabBtnSolution').classList.toggle('active', currentTab === 'solution');
         document.getElementById('tabBtnNotes').classList.toggle('active', currentTab === 'notes');
+        if (tabBtnMap) {
+          tabBtnMap.classList.toggle('active', currentTab === 'map');
+        }
       }
+
+      function cycleProjSlide(delta) {
+        const newIdx = projSlideIndex + delta;
+        if (newIdx >= 0 && newIdx < MIDDLE_EARTH_SLIDES.length) {
+          projSlideIndex = newIdx;
+          render();
+        }
+      }
+
+      function setProjSlide(idx) {
+        projSlideIndex = Math.max(0, Math.min(idx, MIDDLE_EARTH_SLIDES.length - 1));
+        render();
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (currentTab === 'map') {
+          if (e.key === 'ArrowLeft' || e.key === 'Left') {
+            e.preventDefault();
+            cycleProjSlide(-1);
+          } else if (e.key === 'ArrowRight' || e.key === 'Right' || e.key === ' ') {
+            e.preventDefault();
+            cycleProjSlide(1);
+          }
+        }
+      });
 
       document.getElementById('btnRunProjectorDemo').addEventListener('click', async () => {
         const lesson = LESSONS_DATA.find(l => l.id === currentLessonId);
@@ -303,6 +582,67 @@
               </div>
             </div>
           `;
+        } else if (currentTab === 'map') {
+          const s = MIDDLE_EARTH_SLIDES[projSlideIndex] || MIDDLE_EARTH_SLIDES[0];
+          const total = MIDDLE_EARTH_SLIDES.length;
+          const curr = projSlideIndex + 1;
+
+          // Compact stepper: current, next, some dots, and the last one
+          const stepperItems = [];
+          if (curr > 2) {
+            stepperItems.push(1);
+            if (curr > 3) stepperItems.push('...');
+          } else if (curr === 2) {
+            stepperItems.push(1);
+          }
+
+          stepperItems.push(curr);
+
+          if (curr < total - 1) {
+            stepperItems.push(curr + 1);
+            if (curr + 1 < total - 1) stepperItems.push('...');
+            stepperItems.push(total);
+          } else if (curr === total - 1) {
+            stepperItems.push(total);
+          }
+
+          html += `
+            <div class="projector-slideshow-container">
+              <div class="projector-slide-card">
+                <div class="projector-slide-header">
+                  <div class="projector-slide-title-wrap">
+                    <span class="projector-badge">${s.badge || `Slide ${s.step} of 10`}</span>
+                    <span class="projector-slide-title-text" title="${s.title}">${s.title}</span>
+                  </div>
+                  <div class="projector-slide-controls">
+                    <button class="btn-proj-nav" id="btnProjPrev" ${projSlideIndex === 0 ? 'disabled' : ''}>‹ Previous</button>
+                    <div class="projector-slide-pills">
+                      ${stepperItems.map(item => {
+                        if (item === '...') return `<span class="projector-pill-ellipsis">…</span>`;
+                        const slideIdx = item - 1;
+                        const slideObj = MIDDLE_EARTH_SLIDES[slideIdx];
+                        return `<button class="btn-proj-pill ${slideIdx === projSlideIndex ? 'active' : ''}" data-slide-idx="${slideIdx}" title="${slideObj ? slideObj.title : `Slide ${item}`}">${item}</button>`;
+                      }).join('')}
+                    </div>
+                    <button class="btn-proj-nav primary" id="btnProjNext" ${projSlideIndex === MIDDLE_EARTH_SLIDES.length - 1 ? 'disabled' : ''}>Next Location ❯</button>
+                  </div>
+                </div>
+
+                <div class="projector-slide-img-wrap">
+                  <img src="${s.src}" alt="${s.title}" class="projector-slide-img">
+                </div>
+
+                <div class="projector-slide-footer">
+                  <div class="projector-slide-prompt">
+                    🗣️ <strong>Instructor Talking Point:</strong> ${s.caption}
+                  </div>
+                  <div style="text-align:center; font-size:12.5px; color:#94a3b8;">
+                    💡 Advance slides with <strong>Left (←) / Right (→) Arrow keys</strong> or <strong>Spacebar</strong> during class presentation.
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
         }
 
         if (demoOutput) {
@@ -338,6 +678,22 @@
             render();
           });
         }
+
+        // Wire map slide buttons
+        const btnProjPrev = document.getElementById('btnProjPrev');
+        if (btnProjPrev) {
+          btnProjPrev.addEventListener('click', () => cycleProjSlide(-1));
+        }
+        const btnProjNext = document.getElementById('btnProjNext');
+        if (btnProjNext) {
+          btnProjNext.addEventListener('click', () => cycleProjSlide(1));
+        }
+        projectorBody.querySelectorAll('.btn-proj-pill').forEach(pill => {
+          pill.addEventListener('click', () => {
+            const idx = parseInt(pill.getAttribute('data-slide-idx'), 10);
+            if (!isNaN(idx)) setProjSlide(idx);
+          });
+        });
       }
 
       render();

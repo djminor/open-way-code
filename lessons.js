@@ -10,111 +10,237 @@ const LESSONS_DATA = [
   // --------------------------------------------------------------------------
   {
     id: 1,
-    title: "Why Code? The Problem-Solving Mindset",
-    subtitle: "Coding in Python: breaking big problems into small, logical steps.",
-    category: "Mindset & Logic",
+    title: "Sorting Algorithms: Real-Life Computer Science",
+    subtitle: "Why learn to code? From Assembly to Bubble Sort, Merge Sort, and Algorithmic Thinking in the Era of AI.",
+    category: "Algorithms & Logic",
     duration: "60 mins",
-    icon: "🧠",
+    icon: "⚡",
     type: "interactive-logic",
-    summary: "Discover why learning to code is learning how to think clearly and solve problems, especially in the era of AI.",
+    summary: "Discover why learning to code is essential in the era of AI. Explore machine code vs real languages, algorithmic efficiency, and how Bubble Sort and Merge Sort solve real-world problems.",
     contentHtml: `
-      <h3>Coding Is Problem Solving</h3>
-      <p>AI tools can generate syntax in seconds, but they cannot decide <em>what</em> to build or verify if a solution is genuinely correct. Programmers are architects who know how to break down complex challenges into step-by-step algorithms.</p>
+      <h3>Claude (Or Other AI Coder) Demo</h3>
+      <p><em>Start with a live interactive demonstration of an AI coding tool.</em></p>
 
-      <h4>The 4 Steps of Computational Thinking</h4>
-      <ul>
-        <li><strong>Decompose:</strong> Break big problems into bite-sized pieces.</li>
-        <li><strong>Spot Patterns:</strong> Notice what is repeated or familiar.</li>
-        <li><strong>Simplify:</strong> Filter out irrelevant noise and focus on what matters.</li>
-        <li><strong>Design the Recipe:</strong> Write clear, unambiguous instructions.</li>
-      </ul>
+      <h3>So Why Learn to Code?</h3>
+      <p><strong>Ask everyone:</strong> Why learn to code when AI can generate code for us?</p>
+      <p><strong>Synthesize answers and explain:</strong> Generating syntax is fast for AI, but software engineering is fundamentally about understanding logic, algorithmic efficiency, and knowing when AI makes flawed assumptions.</p>
+
+      <h3>From 1940s Machine Code to Real Languages</h3>
+      <p>Back in the 1940s and 50s, we mostly used something called <strong>assembly</strong>, or machine code. It got overtaken by real coding languages, like the ones we’ll learn in this class.</p>
+
+      <div class="code-preview">
+<span class="tok-comment"># Assembly (Low-level machine instructions: registers, memory offsets, raw addresses)</span>
+MOV EAX, [num1]
+ADD EAX, [num2]
+MOV [result], EAX
+
+<span class="tok-comment"># Python / C (High-level, human-readable real coding language)</span>
+result = num1 + num2
+print(result)
+      </div>
+
+      <h4>How AI Is Both Different and the Same</h4>
+      <p>We don’t need to look at machine code anymore, but we might need to look at real code.</p>
+      <p><strong>AI makes a lot of assumptions that we need to understand</strong>, because sometimes it can go in the wrong direction without us even knowing.</p>
+
+      <h3>Thinking Algorithmically: Bubble Sort</h3>
+      <p>Let’s get thinking algorithmically so we can actually run coding processes.</p>
 
       <div class="tip-box">
-        <strong>💡 The Co-Pilot Rule:</strong> AI is an engine; you are the driver. If you know how the code works, you can steer effectively and catch bugs easily.
+        🎥 <strong>Bubble sort representation:</strong> 
+        <a href="https://youtube.com/shorts/fpwj_gp3jtE?is=vrB3QND_DjBebV7g" target="_blank" rel="noopener">Watch Video Demonstration (YouTube Shorts) ❯</a>
+      </div>
+
+      <p><strong>Whiteboard:</strong> array of numbers. Explain how bubble sort is implemented code-wise. There are two parts:</p>
+      <ul>
+        <li><strong>An Iterator:</strong> Loops across the list step-by-step.</li>
+        <li><strong>A Comparator:</strong> Compares two adjacent numbers and decides whether to swap.</li>
+      </ul>
+
+      <p>How Bubble Sort operates:</p>
+      <ol>
+        <li>It gets a list of numbers</li>
+        <li>It compares each number in that list with the next one</li>
+        <li>If they’re out of order, it swaps them</li>
+        <li>It repeats this for every pair in the list</li>
+      </ol>
+
+      <h4>Pseudo Code vs. Real Code</h4>
+      <div class="code-preview">
+<span class="tok-comment"># Pseudo Code</span>
+For each pass across the list:
+    For each adjacent pair (A, B):
+        If A &gt; B:
+            Swap A and B
+
+<span class="tok-comment"># Real Python Code</span>
+<span class="tok-kw">def</span> <span class="tok-fn">bubble_sort</span>(numbers):
+    n = <span class="tok-fn">len</span>(numbers)
+    <span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(n):
+        <span class="tok-kw">for</span> j <span class="tok-kw">in</span> <span class="tok-fn">range</span>(0, n - i - 1):
+            <span class="tok-kw">if</span> numbers[j] &gt; numbers[j + 1]:
+                numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]
+    <span class="tok-kw">return</span> numbers
+      </div>
+
+      <h3>The Problem: x² Iterations</h3>
+      <p>But this has a problem. It works for smaller datasets and ones that are already relatively organized, but guess how many possible iterations it has for <em>x</em> items?</p>
+      <p><strong>It has x² possible iterations.</strong></p>
+
+      <h3>AI vs. Efficiency</h3>
+      <p>Often AI is like bubble sort – it works really fast because what it is doing is easy, but it’s not efficient.</p>
+      <ul>
+        <li>For instance – our brains process about <strong>74 GB of data a day</strong>.</li>
+        <li>An AI model can process that same amount of data in about <strong>ten seconds</strong>.</li>
+        <li><strong>But just because it’s fast doesn’t mean it’s efficient.</strong></li>
+        <li>AI would also use anywhere from <strong>7,500 to 37,000 kWh</strong> for this task.</li>
+        <li>Our brains use about <strong>0.58 kWh</strong>.</li>
+      </ul>
+      <p><strong>So this is why we learn to code!</strong></p>
+
+      <h3>A Much More Efficient Algorithm: Merge Sort</h3>
+      <p>Here’s a representation of a much more efficient sorting algorithm, merge sort:</p>
+      <div style="text-align: center; margin: 16px 0;">
+        <img src="assets/merge_sort_diagram.png" alt="Merge Sort Algorithm Diagram" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-strong); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+      </div>
+
+      <ul>
+        <li>For one million numbers, <strong>bubble sort can take up to a few hours</strong>.</li>
+        <li>For the same, <strong>merge sort takes less than half a second</strong>.</li>
+      </ul>
+
+      <div class="tip-box" style="border-left: 4px solid var(--accent-green);">
+        <p style="margin-bottom: 6px;"><strong>Sometimes the solution is making a bigger, faster computer.</strong></p>
+        <p style="margin-bottom: 6px;"><strong>Other times it’s making a more efficient algorithm.</strong></p>
+        <p style="margin: 0; font-size: 15px; font-weight: 700; color: var(--accent-green);">That’s why we learn to code.</p>
       </div>
     `,
     challenge: `
-      <strong>🎯 Your Mission: The Robot Toast Algorithm</strong>
+      <strong>🎯 Your Mission: Complete the Bubble Sort Comparator</strong>
       <ol>
-        <li>Inspect the step-by-step recipe in <code>main.py</code>.</li>
-        <li>Click <strong>Run ❯</strong> to watch the computer follow instructions sequentially.</li>
-        <li>Try changing <code>has_bread = False</code> on line 32 to see how the code handles missing inputs!</li>
+        <li>Click <strong>Run ❯</strong> to watch the list pass through the loops. Notice that nothing swaps yet because the comparator is set to <code>False</code>!</li>
+        <li>Find the <strong>Comparator</strong> on line 24: <code>if False:</code>. Change <code>False</code> to <code>left &gt; right</code> to swap numbers when the left is larger!</li>
+        <li>Click <strong>✓ Check Answer</strong> to verify your algorithm sorts the list into <code>[1, 2, 4, 5, 8]</code>! (Bonus: try <code>left &lt; right</code> for descending order!)</li>
+        <li>Notice how 5 items take up to 25 (x²) iterations. Imagine sorting 1,000,000 numbers — that's why we need algorithms like Merge Sort!</li>
       </ol>
     `,
     files: {
-      "main.py": `# Lesson 1: Step-by-Step Problem Solving (Python)
-# Test how code handles step-by-step logic
+      "main.py": `# Lesson 1: Sorting Algorithms (Bubble Sort)
+# Explore the two core components: an Iterator and a Comparator
 
-def make_toast(has_bread, has_toaster, is_plugged_in):
-    print("Robot Toast Protocol Starting...")
-    print("")
+def bubble_sort(numbers):
+    n = len(numbers)
+    comparisons = 0
+    swaps = 0
     
-    # 1. Check prerequisites
-    if not has_toaster or not is_plugged_in:
-        return "Error: Toaster is missing or unplugged!"
-    if not has_bread:
-        return "Error: No bread available!"
-        
-    # 2. Step-by-step recipe
-    steps = [
-        "Take 1 slice of bread",
-        "Place bread in toaster slot",
-        "Set heat dial to 3",
-        "Push down lever",
-        "Wait for toaster to pop up",
-        "Carefully remove warm toast",
-        "Spread butter evenly"
-    ]
+    print("Initial unsorted list:", numbers)
+    print("Number of items (x):  ", n)
+    print("Theoretical max iterations (x²):", n * n)
+    print("-" * 48)
     
-    for i, step in enumerate(steps, 1):
-        print("  Step " + str(i) + ": " + step)
+    # 1. The Iterator: loops through passes and adjacent pairs
+    for i in range(n):
+        print("Pass " + str(i + 1) + ":")
+        pass_swapped = False
         
-    print("")
-    return "Success: Toast ready! Algorithmic recipe complete."
+        for j in range(0, n - i - 1):
+            comparisons += 1
+            left = numbers[j]
+            right = numbers[j + 1]
+            
+            # 2. The Comparator: checks if adjacent items are out of order
+            # TODO: Complete the comparator condition below!
+            # If left > right, swap them so the larger number moves right.
+            # Replace 'False' with: left > right (or left < right to sort descending)
+            if False:
+                # Swap the two numbers
+                numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]
+                swaps += 1
+                pass_swapped = True
+                print("  Swapped " + str(left) + " and " + str(right) + " -> " + str(numbers))
+            else:
+                print("  In order: " + str(left) + " <= " + str(right))
+                
+        # If no swaps happened in this pass, the array is already sorted!
+        if not pass_swapped:
+            print("  (No swaps in this pass — list is fully sorted!)")
+            break
+            
+    print("-" * 48)
+    print("Sorted result:    ", numbers)
+    print("Total comparisons:", comparisons)
+    print("Total swaps:      ", swaps)
+    return numbers
 
-# Try toggling has_bread between True and False:
-result = make_toast(has_bread=True, has_toaster=True, is_plugged_in=True)
-print(result)
+# Test Bubble Sort with a sample list:
+test_numbers = [5, 1, 4, 2, 8]
+bubble_sort(test_numbers)
 `
     },
-    teacherSolution: `def make_toast(has_bread, has_toaster, is_plugged_in):
-    print("Robot Toast Protocol Starting...")
-    print("")
+    teacherSolution: `def bubble_sort(numbers):
+    n = len(numbers)
+    comparisons = 0
+    swaps = 0
     
-    if not has_toaster or not is_plugged_in:
-        return "Error: Toaster is missing or unplugged!"
-    if not has_bread:
-        return "Error: No bread available!"
-        
-    steps = [
-        "Take 1 slice of bread",
-        "Place bread in toaster slot",
-        "Set heat dial to 3",
-        "Push down lever",
-        "Wait for toaster to pop up",
-        "Carefully remove warm toast",
-        "Spread butter evenly"
-    ]
-    
-    for i, step in enumerate(steps, 1):
-        print("  Step " + str(i) + ": " + step)
-        
-    print("")
-    return "Success: Toast ready! Algorithmic recipe complete."
+    for i in range(n):
+        pass_swapped = False
+        for j in range(0, n - i - 1):
+            comparisons += 1
+            if numbers[j] > numbers[j + 1]:
+                numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]
+                swaps += 1
+                pass_swapped = True
+        if not pass_swapped:
+            break
+            
+    print("Sorted result:    ", numbers)
+    print("Total comparisons:", comparisons)
+    print("Total swaps:      ", swaps)
+    return numbers
 
-result = make_toast(has_bread=True, has_toaster=True, is_plugged_in=True)
-print(result)
+test_numbers = [5, 1, 4, 2, 8]
+bubble_sort(test_numbers)
 `,
     hints: [
-      "Click 'Run ❯' to see the output in the console.",
-      "Notice how the computer executes steps in exact order from top to bottom.",
-      "Try setting has_bread = False to test error checking!"
+      "Click 'Run ❯' to see the iterator and comparator sort adjacent pairs in real time.",
+      "Look for the comparator on line 24: 'if False:'. Change 'False' to 'left > right' to swap adjacent numbers!",
+      "Notice how 5 items take up to 25 (x²) iterations. Imagine sorting 1,000,000 numbers — that's why we need algorithms like Merge Sort!"
     ],
     validate: (code, output) => {
-      if (output.includes("Robot Toast Protocol Starting") && (output.includes("Success") || output.includes("Error"))) {
-        return { pass: true, message: "Great job! You ran the recipe algorithm and observed step-by-step execution in Python." };
+      const isAscending = output.includes("Sorted result:     [1, 2, 4, 5, 8]") || output.includes("[1, 2, 4, 5, 8]");
+      const isDescending = output.includes("Sorted result:     [8, 5, 4, 2, 1]") || output.includes("[8, 5, 4, 2, 1]");
+      const hasSwaps = !output.includes("Total swaps:       0") && /Total swaps:\s*[1-9]/.test(output);
+
+      if ((isAscending || isDescending) && hasSwaps) {
+        return { 
+          pass: true, 
+          message: isDescending 
+            ? "Great job! You modified the comparator to sort in descending order (highest to lowest)!" 
+            : "Great job! You completed the comparator, executed Bubble Sort, and observed the algorithm sort adjacent pairs in x² iterations!"
+        };
       }
-      return { pass: false, message: "Click 'Run ❯' to execute the toast algorithm!" };
+
+      if (code.includes("if False:")) {
+        return { 
+          pass: false, 
+          message: "The comparator is not finished yet.",
+          hint: "In main.py line 24, change 'if False:' to 'if left > right:' so the comparator swaps numbers when they are out of order!"
+        };
+      }
+
+      if (!output.includes("Sorted result:")) {
+        return { 
+          pass: false, 
+          message: "Click 'Run ❯' to execute the Bubble Sort algorithm!",
+          hint: "Run your code first to verify that the output prints 'Sorted result:'."
+        };
+      }
+
+      return { 
+        pass: false, 
+        message: "The list is not yet sorted correctly.",
+        hint: "Make sure your comparator on line 24 compares adjacent numbers with 'if left > right:' (or 'if left < right:' for descending) and click Run!"
+      };
     }
   },
 
@@ -208,8 +334,8 @@ print(result)
       "Try changing the background color in the <style> section!"
     ],
     validate: (code, output, files) => {
-      const html = files["index.html"] || code;
-      if (!html.includes("My Personal Web Base") || html.includes("999")) {
+      const html = (files && files["index.html"]) || code || "";
+      if (!html.includes("My Personal Web Base") || html.includes("Player Score: 999") || !html.includes("Player Score: 100 XP")) {
         return { pass: true, message: "Awesome! You customized the HTML and updated the live DOM." };
       }
       return { pass: false, message: "Personalize the heading or score in index.html to complete the mission!" };
@@ -405,8 +531,8 @@ btn.addEventListener('click', () => {
       "Check the skills list in index.html to add your own hobbies!"
     ],
     validate: (code, output, files) => {
-      const html = files["index.html"] || "";
-      if (!html.includes("Alex Rivera") || html.includes("High Fives")) {
+      const html = (files && files["index.html"]) || code || "";
+      if (!html.includes("Alex Rivera")) {
         return { pass: true, message: "Great job! You personalized your web app portfolio." };
       }
       return { pass: false, message: "Customize your name or skills in index.html!" };
@@ -539,13 +665,38 @@ print("Generated clean_emails.csv successfully!")
       "TODO 3: with open('clean_emails.csv', 'w') as output_file: output_file.write(email + '\\n')"
     ],
     validate: (code, output, files) => {
-      const hasFindall = /re\.findall\s*\(/.test(code);
-      const hasDedupe = /not\s+in\s+clean_email_list/.test(code);
-      const hasCsv = files["clean_emails.csv"] || output.includes("Generated clean_emails.csv");
-      if (hasFindall && hasDedupe && output.includes("Clean, unique emails:")) {
-        return { pass: true, message: "Perfect! You extracted, cleaned, and exported the email dataset to CSV in Python." };
+      const activeLines = code.split("\n").filter(line => !line.trim().startsWith("#"));
+      const activeCode = activeLines.join("\n");
+
+      const hasFindall = /found_emails\s*=\s*re\.findall\s*\(/.test(activeCode);
+      const hasDedupe = /not\s+in\s+clean_email_list/.test(activeCode) && /clean_email_list\.append\s*\(/.test(activeCode);
+      const hasCleanEmails = output.includes("Clean, unique emails:") && !output.includes("Clean, unique emails: 0");
+
+      if (hasFindall && hasDedupe && hasCleanEmails) {
+        return { pass: true, message: "Perfect! You extracted, cleaned, and exported the email dataset in Python." };
       }
-      return { pass: false, message: "Complete TODO 1 and TODO 2 to extract and deduplicate emails!" };
+
+      if (!hasFindall || output.includes("Raw emails detected: 0")) {
+        return { 
+          pass: false, 
+          message: "TODO 1 is not complete yet (0 raw emails detected).",
+          hint: "Set found_emails = re.findall(email_pattern, html_junk) to extract all email addresses from the HTML."
+        };
+      }
+
+      if (!hasDedupe || output.includes("Clean, unique emails: 0")) {
+        return { 
+          pass: false, 
+          message: "TODO 2 is not complete yet (emails need to be lowercased and deduplicated).",
+          hint: "Loop through found_emails, clean with email.lower(), and check 'if clean not in clean_email_list: clean_email_list.append(clean)'."
+        };
+      }
+
+      return { 
+        pass: false, 
+        message: "The email cleanup is not complete yet.",
+        hint: "Complete TODO 1 (extract with re.findall) and TODO 2 (deduplicate into clean_email_list)!"
+      };
     }
   },
 
@@ -671,10 +822,17 @@ print("Bonus: " + str(len(optimal_schedule) - len(casual_schedule)) + " extra ac
       "The optimal schedule attends 4 events compared to 3!"
     ],
     validate: (code, output) => {
-      if (output.includes("Smart Scheduler attended 4 events") || output.includes("extra activities!")) {
+      const hasFourEvents = output.includes("Smart Scheduler attended 4 events");
+      const isNotNegative = !output.includes("-2 extra activities") && !output.includes("attended 0 events");
+
+      if (hasFourEvents && isNotNegative) {
         return { pass: true, message: "Optimal schedule unlocked! You proved greedy scheduling in Python attends 4 events." };
       }
-      return { pass: false, message: "Implement TODO 1 and TODO 2 to build the optimal schedule (attends 4 events)!" };
+      return { 
+        pass: false, 
+        message: "The smart scheduler has not selected the optimal 4 events yet.",
+        hint: "Complete TODO 1 to sort events by end time, and TODO 2 to greedily attend events that start after clock_time!"
+      };
     }
   },
 
@@ -702,7 +860,7 @@ print("Bonus: " + str(len(optimal_schedule) - len(casual_schedule)) + " extra ac
       <p>At each location, calculate distances to all unvisited destinations and travel to the closest one next!</p>
 
       <div class="tip-box">
-        <strong>🗺️ Map Tab:</strong> Click the <strong>Middle Earth Map</strong> tab above the editor to see all destination coordinates on the map.
+        <strong>🗺️ Map Tab:</strong> Click the <strong>Middle Earth Map</strong> tab above the editor to cycle through the location progression slides, see how each destination arrived one-by-one, examine the unoptimized zigzag route, and view the Cartesian coordinate grid!
       </div>
     `,
     challenge: `
@@ -819,10 +977,38 @@ print("Saved:                  " + str(round(unopt_dist - smart_dist, 2)) + " le
       "TODO 3: Remember to remove the 'break' statement!"
     ],
     validate: (code, output) => {
-      if (output.includes("Smart Fellowship Route:") && !output.includes("break")) {
+      const hasZeroDist = output.includes("Smart Fellowship Route: 0 leagues") || 
+                          output.includes("Smart Fellowship Route: 0.0 leagues") || 
+                          output.includes("Unoptimized Journey: 0 leagues");
+      const hasPath = output.includes("->") && !output.includes("Path:                   \n");
+      const hasNoBreak = !code.includes("\n    break") && !code.includes("\nbreak");
+      const hasSmartRoute = output.includes("Smart Fellowship Route:") && !hasZeroDist;
+
+      if (hasSmartRoute && hasPath && hasNoBreak) {
         return { pass: true, message: "Route optimized! You solved the Middle Earth routing challenge in Python." };
       }
-      return { pass: false, message: "Implement TODO 1, 2, and 3 to compute the smart Fellowship route!" };
+
+      if (hasZeroDist || code.includes("dist_x = 0")) {
+        return { 
+          pass: false, 
+          message: "The Manhattan Distance calculation is not complete yet (distances are 0 leagues).",
+          hint: "In TODO 1, implement get_distance(p1, p2) using abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])!"
+        };
+      }
+
+      if (code.includes("break # Remove this break") || code.includes("\n    break")) {
+        return { 
+          pass: false, 
+          message: "The nearest neighbor search loop is breaking after the first iteration.",
+          hint: "Uncomment TODO 2 and TODO 3, and remove the 'break' statement on line 46!"
+        };
+      }
+
+      return { 
+        pass: false, 
+        message: "The Fellowship route is not fully calculated yet.",
+        hint: "Complete TODO 1, 2, and 3 to compute the shortest path visiting all 7 Middle Earth destinations!"
+      };
     }
   },
 
@@ -853,33 +1039,41 @@ print("Saved:                  " + str(round(unopt_dist - smart_dist, 2)) + " le
       <strong>🎯 Your Mission: Review and Test AI Code</strong>
       <ol>
         <li>Inspect the AI-generated palindrome function in <code>main.py</code>.</li>
-        <li>Click <strong>Run ❯</strong> to run the automated test suite.</li>
-        <li>Switch to the <strong>AI Guest Assistant</strong> tab to test prompting a new function!</li>
+        <li>Click <strong>Run ❯</strong> to run the automated test suite. Notice which tests FAIL!</li>
+        <li>Fix the flaw in <code>is_palindrome()</code> to handle casing and spaces so all tests PASS.</li>
       </ol>
     `,
     files: {
       "main.py": `# Lesson 7: AI Code Review & Verification (Python)
 # Candidate function generated by AI:
+# TODO: Notice that this naive AI function fails on mixed casing and phrases with spaces!
+# Fix it so all test cases pass.
 def is_palindrome(text):
-    clean = text.replace(" ", "").lower()
-    return clean == clean[::-1]
+    return text == text[::-1]
 
 # Automated Test Suite:
 tests = [
     ("racecar", True),
+    ("Racecar", True),
     ("hello", False),
     ("A man a plan a canal Panama", True),
     ("12321", True)
 ]
 
 print("Testing AI-Generated Python Code...")
+all_passed = True
 for word, expected in tests:
     result = is_palindrome(word)
     mark = "PASS" if result == expected else "FAIL"
+    if mark == "FAIL":
+        all_passed = False
     print("  " + mark + " | '" + word + "' -> " + str(result))
 
 print("")
-print("All automated verification checks passed!")
+if all_passed:
+    print("All automated verification checks passed!")
+else:
+    print("Some automated verification checks failed!")
 `
     },
     teacherSolution: `def is_palindrome(text):
@@ -888,6 +1082,7 @@ print("All automated verification checks passed!")
 
 tests = [
     ("racecar", True),
+    ("Racecar", True),
     ("hello", False),
     ("A man a plan a canal Panama", True),
     ("12321", True)
@@ -905,13 +1100,29 @@ print("All automated verification checks passed!")
     hints: [
       "Click 'Run ❯' to execute the test suite.",
       "Notice how string slicing [::-1] reverses the string cleanly in Python!",
-      "Use the AI tab to experiment with prompts."
+      "Clean text first with .lower() and .replace(' ', '') to handle spaces and capital letters!"
     ],
     validate: (code, output) => {
-      if (output.includes("Testing AI-Generated Python Code") && output.includes("PASS")) {
+      const hasRun = output.includes("Testing AI-Generated Python Code");
+      const allPassed = output.includes("All automated verification checks passed!") && !output.includes("FAIL");
+
+      if (hasRun && allPassed) {
         return { pass: true, message: "Great work! You reviewed and verified AI-generated Python with test cases." };
       }
-      return { pass: false, message: "Run the verification suite in main.py!" };
+
+      if (output.includes("FAIL")) {
+        return { 
+          pass: false, 
+          message: "Some test cases failed! The naive AI code does not handle mixed casing or spaces.",
+          hint: "In is_palindrome(text), clean the text by converting to lowercase (.lower()) and stripping spaces (.replace(' ', '')) before checking [::-1]!"
+        };
+      }
+
+      return { 
+        pass: false, 
+        message: "Run the verification suite in main.py!",
+        hint: "Click 'Run ❯' to execute the test suite and see if all tests PASS."
+      };
     }
   },
 
@@ -930,7 +1141,7 @@ print("All automated verification checks passed!")
     contentHtml: `<p>This module is currently in preparation. Check back soon!</p>`,
     challenge: `<p>Coming soon.</p>`,
     files: { "main.py": `# Lesson 8: In preparation\nprint("Lesson 8 coming soon!")\n` },
-    validate: () => ({ pass: true, message: "Preview unlocked!" })
+    validate: () => ({ pass: false, message: "This module is coming soon!", hint: "Select Lessons 1 through 7 in the guide menu to build real projects!" })
   },
   {
     id: 9,
@@ -944,7 +1155,7 @@ print("All automated verification checks passed!")
     contentHtml: `<p>This module is currently in preparation. Check back soon!</p>`,
     challenge: `<p>Coming soon.</p>`,
     files: { "main.py": `# Lesson 9: In preparation\nprint("Lesson 9 coming soon!")\n` },
-    validate: () => ({ pass: true, message: "Preview unlocked!" })
+    validate: () => ({ pass: false, message: "This module is coming soon!", hint: "Select Lessons 1 through 7 in the guide menu to build real projects!" })
   },
   {
     id: 10,
@@ -958,7 +1169,7 @@ print("All automated verification checks passed!")
     contentHtml: `<p>This module is currently in preparation. Check back soon!</p>`,
     challenge: `<p>Coming soon.</p>`,
     files: { "main.py": `# Lesson 10: In preparation\nprint("Lesson 10 coming soon!")\n` },
-    validate: () => ({ pass: true, message: "Preview unlocked!" })
+    validate: () => ({ pass: false, message: "This module is coming soon!", hint: "Select Lessons 1 through 7 in the guide menu to build real projects!" })
   },
   {
     id: 11,
@@ -972,7 +1183,7 @@ print("All automated verification checks passed!")
     contentHtml: `<p>This module is currently in preparation. Check back soon!</p>`,
     challenge: `<p>Coming soon.</p>`,
     files: { "main.py": `# Lesson 11: In preparation\nprint("Lesson 11 coming soon!")\n` },
-    validate: () => ({ pass: true, message: "Preview unlocked!" })
+    validate: () => ({ pass: false, message: "This module is coming soon!", hint: "Select Lessons 1 through 7 in the guide menu to build real projects!" })
   },
   {
     id: 12,
@@ -986,6 +1197,10 @@ print("All automated verification checks passed!")
     contentHtml: `<p>This module is currently in preparation. Check back soon!</p>`,
     challenge: `<p>Coming soon.</p>`,
     files: { "main.py": `# Lesson 12: In preparation\nprint("Lesson 12 coming soon!")\n` },
-    validate: () => ({ pass: true, message: "Preview unlocked!" })
+    validate: () => ({ pass: false, message: "This module is coming soon!", hint: "Select Lessons 1 through 7 in the guide menu to build real projects!" })
   }
 ];
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { LESSONS_DATA };
+}

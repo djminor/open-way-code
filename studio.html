@@ -42,6 +42,10 @@
 
     <!-- Right Header Tools -->
     <div class="header-actions">
+      <!-- Free Coding Playground Link -->
+      <a href="playground.html" class="btn-instructor-toggle" style="text-decoration: none; border-color: rgba(168, 85, 247, 0.4); color: #d8b4fe;" title="Open Free Coding Playground">
+        <span>🎮</span> Playground
+      </a>
       <!-- Classroom Instructor Projector Board Toggle -->
       <button id="lokiToggleBtn" class="btn-instructor-toggle" title="Open Classroom Projector Board (Alt+L)">
         <span>📽️</span> Instructor Board
@@ -162,13 +166,27 @@
             <iframe id="previewIframe" class="preview-iframe" sandbox="allow-scripts allow-modals"></iframe>
           </div>
 
-          <!-- 3. Middle Earth Map Viewer (Lesson 6) -->
+          <!-- 3. Middle Earth Map Viewer & Slide Progression (Lesson 6) -->
           <div id="mapViewerWrapper" class="map-viewer-wrapper" style="display: none;">
-            <div class="map-container">
-              <img src="middle_earth_map.jpg" alt="Middle Earth Map" class="map-img">
+            <div class="map-slideshow-header">
+              <div class="map-slideshow-title-group">
+                <span class="map-step-badge" id="mapStepBadge">Stop 1 of 10</span>
+                <span class="map-step-title" id="mapStepTitle">Hobbiton (The Shire)</span>
+              </div>
+              <div class="map-slideshow-nav">
+                <button id="mapPrevBtn" class="btn-slide-nav" title="Previous Slide (←)">‹ Prev</button>
+                <div class="map-step-pills" id="mapStepPills"></div>
+                <button id="mapNextBtn" class="btn-slide-nav btn-slide-primary" title="Next Slide (→)">Next ❯</button>
+              </div>
             </div>
-            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-secondary);">
-              <span>Destinations: Hobbiton (5, 8) &bull; Weathertop (8.5, 8) &bull; Ettenmoors (9.5, 9.25) &bull; Lorien (6.5, 10.5) &bull; Rohan (5, 11) &bull; Gondor (3, 10) &bull; Erebor (9.5, 13.8)</span>
+
+            <div class="map-container">
+              <img id="mapSlideImg" src="assets/middle_earth_slides/middle_earth_slide_0.png" alt="Middle Earth Map Slide" class="map-img">
+            </div>
+
+            <div class="map-slideshow-footer">
+              <div class="map-caption" id="mapStepCaption">The Fellowship begins their journey at Hobbiton: coordinate (5, 8).</div>
+              <div class="map-keyboard-hint">💡 Tip: Use Left (←) / Right (→) Arrow keys to cycle through locations</div>
             </div>
           </div>
 

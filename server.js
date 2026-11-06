@@ -27,7 +27,8 @@ const MIME_TYPES = {
   '.pdf': 'application/pdf',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf'
+  '.ttf': 'font/ttf',
+  '.py': 'text/plain; charset=utf-8'
 };
 
 const server = http.createServer((req, res) => {
@@ -41,6 +42,8 @@ const server = http.createServer((req, res) => {
     safePath = '/studio.html';
   } else if (safePath === '/instructor' || safePath === '/projector') {
     safePath = '/instructor.html';
+  } else if (safePath === '/playground' || safePath === '/sandbox') {
+    safePath = '/playground.html';
   }
 
   const filePath = path.join(BASE_DIR, safePath);
@@ -81,35 +84,39 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    const nextPort = PORT + 1;
-    console.warn(`⚠️  Port ${PORT} is already in use. Switching to port ${nextPort}...`);
-    server.listen(nextPort, () => {
-      console.log(`====================================================`);
-      console.log(`🚀 OpenWay Code Server is Live!`);
-      console.log(`📡 URL: http://localhost:${nextPort}`);
-      console.log(`📂 Serving directory: ${BASE_DIR}`);
-      console.log(`====================================================`);
-    });
-  } else {
-    console.error('Server error:', err);
-  }
-});
-
-server.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`🚀 OpenWay Code Server is Live!`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`📂 Serving directory: ${BASE_DIR}`);
-  console.log(`====================================================`);
-});
-
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
+if (require.main === module) {
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      const nextPort = PORT + 1;
+      console.warn(`⚠️  Port ${PORT} is already in use. Switching to port ${nextPort}...`);
+      server.listen(nextPort, () => {
+        console.log(`====================================================`);
+        console.log(`🚀 OpenWay Code Server is Live!`);
+        console.log(`📡 URL: http://localhost:${nextPort}`);
+        console.log(`📂 Serving directory: ${BASE_DIR}`);
+        console.log(`====================================================`);
+      });
+    } else {
+      console.error('Server error:', err);
+    }
   });
-});
+
+  server.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`🚀 OpenWay Code Server is Live!`);
+    console.log(`📡 URL: http://localhost:${PORT}`);
+    console.log(`📂 Serving directory: ${BASE_DIR}`);
+    console.log(`====================================================`);
+  });
+
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+  });
+}
+
+module.exports = server;

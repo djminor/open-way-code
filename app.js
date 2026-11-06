@@ -3,6 +3,79 @@
  * Unified 60-Minute Interactive Controller
  */
 
+const MIDDLE_EARTH_SLIDES = [
+  {
+    step: 1,
+    title: "1. Hobbiton (The Shire)",
+    badge: "Location 1 of 7",
+    caption: "The Fellowship starts at Hobbiton: coordinate (5, 8).",
+    src: "assets/middle_earth_slides/middle_earth_slide_0.png"
+  },
+  {
+    step: 2,
+    title: "2. Lorien",
+    badge: "Location 2 of 7",
+    caption: "Stop 2 arrives: Lorien at coordinate (6.5, 10.5). Notice how far across the Misty Mountains this is!",
+    src: "assets/middle_earth_slides/middle_earth_slide_1.png"
+  },
+  {
+    step: 3,
+    title: "3. Ettenmoors",
+    badge: "Location 3 of 7",
+    caption: "Stop 3 arrives: Ettenmoors at coordinate (9.5, 9.25), back north towards Angmar.",
+    src: "assets/middle_earth_slides/middle_earth_slide_2.png"
+  },
+  {
+    step: 4,
+    title: "4. Erebor (The Lonely Mountain)",
+    badge: "Location 4 of 7",
+    caption: "Stop 4 arrives: Erebor at coordinate (9.5, 13.8), far across Mirkwood in the northeast.",
+    src: "assets/middle_earth_slides/middle_earth_slide_3.png"
+  },
+  {
+    step: 5,
+    title: "5. Rohan",
+    badge: "Location 5 of 7",
+    caption: "Stop 5 arrives: Rohan at coordinate (5, 11), deep south in the Riddermark.",
+    src: "assets/middle_earth_slides/middle_earth_slide_4.png"
+  },
+  {
+    step: 6,
+    title: "6. Gondor",
+    badge: "Location 6 of 7",
+    caption: "Stop 6 arrives: Gondor at coordinate (3, 10), at the white mountains in the far southwest.",
+    src: "assets/middle_earth_slides/middle_earth_slide_5.png"
+  },
+  {
+    step: 7,
+    title: "7. Weathertop",
+    badge: "All 7 Destinations",
+    caption: "Stop 7 arrives: Weathertop at coordinate (8.5, 8). All 7 destinations plotted! Notice the chaotic, crisscrossing arrival order.",
+    src: "assets/middle_earth_slides/middle_earth_slide_6.png"
+  },
+  {
+    step: 8,
+    title: "Unoptimized Order Summary",
+    badge: "Arrival Sequence",
+    caption: "Visiting stops in arrival order: Hobbiton ➔ Lorien ➔ Ettenmoors ➔ Erebor ➔ Rohan ➔ Gondor ➔ Weathertop requires 41.5 leagues of zigzag travel!",
+    src: "assets/middle_earth_slides/middle_earth_slide_7.png"
+  },
+  {
+    step: 9,
+    title: "Cartesian Grid Overlay",
+    badge: "Coordinate Grid",
+    caption: "Grid lines superimposed over Middle Earth to enable Manhattan Distance calculations: |x1 - x2| + |y1 - y2|.",
+    src: "assets/middle_earth_slides/middle_earth_slide_8.png"
+  },
+  {
+    step: 10,
+    title: "Destination Coordinates Key",
+    badge: "Coordinates Reference",
+    caption: "Official (x, y) coordinates for all 7 destinations used in your Python script.",
+    src: "assets/middle_earth_slides/middle_earth_slide_9.png"
+  }
+];
+
 class CodingApp {
   constructor() {
     this.lessons = LESSONS_DATA;
@@ -102,11 +175,21 @@ class CodingApp {
     this.aiChatBody = document.getElementById('aiChatBody');
     this.aiChatInput = document.getElementById('aiChatInput');
     this.aiChatSendBtn = document.getElementById('aiChatSendBtn');
+
+    // Middle Earth Map Slideshow Elements
+    this.mapSlideIndex = 0;
+    this.mapStepBadge = document.getElementById('mapStepBadge');
+    this.mapStepTitle = document.getElementById('mapStepTitle');
+    this.mapPrevBtn = document.getElementById('mapPrevBtn');
+    this.mapNextBtn = document.getElementById('mapNextBtn');
+    this.mapStepPills = document.getElementById('mapStepPills');
+    this.mapSlideImg = document.getElementById('mapSlideImg');
+    this.mapStepCaption = document.getElementById('mapStepCaption');
   }
 
   bindEvents() {
-    this.prevBtn.addEventListener('click', () => this.cycleLesson(-1));
-    this.nextBtn.addEventListener('click', () => this.cycleLesson(1));
+    if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.cycleLesson(-1));
+    if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.cycleLesson(1));
 
     // Drawer toggles
     if (this.toggleSidebarBtn) {
@@ -119,22 +202,48 @@ class CodingApp {
       this.expandInstructionsBtn.addEventListener('click', () => this.toggleLessonPane(true));
     }
 
-    this.runBtn.addEventListener('click', () => this.runCurrentCode());
-    this.checkBtn.addEventListener('click', () => this.checkCurrentSolution());
-    this.resetBtn.addEventListener('click', () => this.resetCurrentLesson());
-    this.clearTermBtn.addEventListener('click', () => this.clearTerminal());
+    if (this.runBtn) this.runBtn.addEventListener('click', () => this.runCurrentCode());
+    if (this.checkBtn) this.checkBtn.addEventListener('click', () => this.checkCurrentSolution());
+    if (this.resetBtn) this.resetBtn.addEventListener('click', () => this.resetCurrentLesson());
+    if (this.clearTermBtn) this.clearTermBtn.addEventListener('click', () => this.clearTerminal());
 
-    this.themeToggleBtn.addEventListener('click', () => {
-      this.theme = this.theme === 'dark' ? 'light' : 'dark';
-      this.applyTheme(this.theme);
+    if (this.themeToggleBtn) {
+      this.themeToggleBtn.addEventListener('click', () => {
+        this.theme = this.theme === 'dark' ? 'light' : 'dark';
+        this.applyTheme(this.theme);
+      });
+    }
+
+    // Map Slideshow controls
+    if (this.mapPrevBtn) {
+      this.mapPrevBtn.addEventListener('click', () => this.cycleMapSlide(-1));
+    }
+    if (this.mapNextBtn) {
+      this.mapNextBtn.addEventListener('click', () => this.cycleMapSlide(1));
+    }
+
+    // Keyboard navigation when map tab is open
+    window.addEventListener('keydown', (e) => {
+      if (this.activeView === 'map') {
+        if (e.key === 'ArrowLeft' || e.key === 'Left') {
+          e.preventDefault();
+          this.cycleMapSlide(-1);
+        } else if (e.key === 'ArrowRight' || e.key === 'Right' || e.key === ' ') {
+          e.preventDefault();
+          this.cycleMapSlide(1);
+        }
+      }
     });
 
     // Loki Menu events
-    this.lokiToggleBtn.addEventListener('click', () => this.toggleLokiModal());
-    this.closeLokiBtn.addEventListener('click', () => this.toggleLokiModal(false));
-    this.lokiOverlay.addEventListener('click', (e) => {
-      if (e.target === this.lokiOverlay) this.toggleLokiModal(false);
-    });
+    if (this.lokiToggleBtn) {
+      this.lokiToggleBtn.addEventListener('click', () => this.toggleLokiModal());
+    }
+    if (this.lokiOverlay) {
+      this.lokiOverlay.addEventListener('click', (e) => {
+        if (e.target === this.lokiOverlay) this.toggleLokiModal(false);
+      });
+    }
 
     // Keyboard shortcut for Loki: Alt+L or Ctrl+L
     window.addEventListener('keydown', (e) => {
@@ -267,8 +376,22 @@ class CodingApp {
     this.renderHints(lesson.hints);
 
     // Initialize or retrieve virtual files
-    if (!this.filesStore[lesson.id]) {
+    const isOldLesson1 = lesson.id === 1 && (
+      this.filesStore[1]?.['main.py']?.includes("Robot Toast") ||
+      !this.filesStore[1]?.['main.py']?.includes("TODO: Complete the comparator")
+    );
+    const isOldLesson7 = lesson.id === 7 && (
+      this.filesStore[7]?.['main.py']?.includes("clean = text.replace")
+    );
+    if (!this.filesStore[lesson.id] || Object.keys(this.filesStore[lesson.id]).length === 0 || isOldLesson1 || isOldLesson7) {
       this.filesStore[lesson.id] = { ...lesson.files };
+    } else {
+      // Ensure all expected files from lesson.files exist
+      for (const [fname, content] of Object.entries(lesson.files || {})) {
+        if (this.filesStore[lesson.id][fname] === undefined) {
+          this.filesStore[lesson.id][fname] = content;
+        }
+      }
     }
     const currentFiles = this.filesStore[lesson.id];
 
@@ -377,6 +500,91 @@ class CodingApp {
     this.previewWrapper.style.display = mode === 'preview' ? 'flex' : 'none';
     this.mapViewerWrapper.style.display = mode === 'map' ? 'flex' : 'none';
     this.aiSandboxWrapper.style.display = mode === 'ai' ? 'flex' : 'none';
+
+    if (mode === 'map') {
+      this.initMapSlideshow();
+    }
+  }
+
+  initMapSlideshow() {
+    this.renderMapSlide();
+  }
+
+  cycleMapSlide(delta) {
+    const newIdx = this.mapSlideIndex + delta;
+    if (newIdx >= 0 && newIdx < MIDDLE_EARTH_SLIDES.length) {
+      this.setMapSlide(newIdx);
+    }
+  }
+
+  setMapSlide(idx) {
+    this.mapSlideIndex = Math.max(0, Math.min(idx, MIDDLE_EARTH_SLIDES.length - 1));
+    this.renderMapSlide();
+  }
+
+  renderMapStepperPills() {
+    if (!this.mapStepPills) return;
+    this.mapStepPills.innerHTML = '';
+    const total = MIDDLE_EARTH_SLIDES.length;
+    const curr = this.mapSlideIndex + 1; // 1-based step (1 to 10)
+
+    // Compact stepper: current, next, some dots, and the last one
+    const items = [];
+    if (curr > 2) {
+      items.push(1);
+      if (curr > 3) items.push('...');
+    } else if (curr === 2) {
+      items.push(1);
+    }
+
+    items.push(curr);
+
+    if (curr < total - 1) {
+      items.push(curr + 1);
+      if (curr + 1 < total - 1) {
+        items.push('...');
+      }
+      items.push(total);
+    } else if (curr === total - 1) {
+      items.push(total);
+    }
+
+    items.forEach(item => {
+      if (item === '...') {
+        const dot = document.createElement('span');
+        dot.className = 'map-pill-ellipsis';
+        dot.textContent = '…';
+        this.mapStepPills.appendChild(dot);
+      } else {
+        const stepNum = item;
+        const slideIdx = stepNum - 1;
+        const slide = MIDDLE_EARTH_SLIDES[slideIdx];
+        const btn = document.createElement('button');
+        btn.className = `map-pill-dot ${slideIdx === this.mapSlideIndex ? 'active' : ''}`;
+        btn.textContent = stepNum;
+        btn.title = slide ? `${slide.step}. ${slide.title}` : `Slide ${stepNum}`;
+        btn.addEventListener('click', () => this.setMapSlide(slideIdx));
+        this.mapStepPills.appendChild(btn);
+      }
+    });
+  }
+
+  renderMapSlide() {
+    if (!this.mapSlideImg || !MIDDLE_EARTH_SLIDES[this.mapSlideIndex]) return;
+    const slide = MIDDLE_EARTH_SLIDES[this.mapSlideIndex];
+    this.mapSlideImg.src = slide.src;
+    this.mapSlideImg.alt = slide.title;
+    if (this.mapStepBadge) this.mapStepBadge.textContent = slide.badge || `Stop ${slide.step} of 10`;
+    if (this.mapStepTitle) {
+      this.mapStepTitle.textContent = slide.title;
+      this.mapStepTitle.title = slide.title;
+    }
+    if (this.mapStepCaption) this.mapStepCaption.textContent = slide.caption;
+
+    if (this.mapPrevBtn) this.mapPrevBtn.disabled = this.mapSlideIndex === 0;
+    if (this.mapNextBtn) this.mapNextBtn.disabled = this.mapSlideIndex === MIDDLE_EARTH_SLIDES.length - 1;
+
+    this.renderMapStepperPills();
   }
 
   loadActiveFileContent() {
@@ -481,6 +689,13 @@ class CodingApp {
     this.appendTerminalOutput(`\n🔍 Verifying Mission Requirements...\n`, 'term-info');
     const result = await this.runCurrentCode();
 
+    if (result && result.error) {
+      const hint = (lesson.hints && lesson.hints[0]) || "Check your code syntax and the error message above.";
+      this.showFeedback(false, `Not done yet! Code encountered an error: ${result.error}`, hint);
+      this.appendTerminalOutput(`\n❌ MISSION NOT YET COMPLETE: Code encountered an error.\n💡 Hint: ${hint}\n`, 'term-stderr');
+      return;
+    }
+
     if (lesson.validate) {
       const targetCode = this.isWebLesson() ? (files['index.html'] || '') : (files['main.py'] || this.codeEditor.value);
       const v = lesson.validate(targetCode, result.output || '', files);
@@ -491,8 +706,12 @@ class CodingApp {
         this.showFeedback(true, v.message);
         this.appendTerminalOutput(`\n✅ MISSION PASSED: ${v.message}\n`, 'term-stdout');
       } else {
-        this.showFeedback(false, v.message);
-        this.appendTerminalOutput(`\n❌ MISSION NOT YET COMPLETE: ${v.message}\n`, 'term-stderr');
+        const hint = v.hint || (lesson.hints && lesson.hints[0]) || "Review the mission instructions in the Guide panel.";
+        const displayMsg = v.message.toLowerCase().startsWith('not done yet') 
+          ? v.message 
+          : `Not done yet! ${v.message}`;
+        this.showFeedback(false, displayMsg, hint);
+        this.appendTerminalOutput(`\n❌ MISSION NOT YET COMPLETE: ${v.message}\n💡 Hint: ${hint}\n`, 'term-stderr');
       }
     }
   }
@@ -502,20 +721,33 @@ class CodingApp {
     if (confirm(`Reset Lesson ${lesson.id} files back to the starting code?`)) {
       this.filesStore[lesson.id] = { ...lesson.files };
       localStorage.setItem('openway_files_v1', JSON.stringify(this.filesStore));
+
+      // Mark the lesson as not done
+      this.completedLessons.delete(lesson.id);
+      localStorage.setItem('openway_completed_v1', JSON.stringify([...this.completedLessons]));
+      this.renderSidebar();
+      this.updateProgress();
+      this.hideFeedback();
+
       const fileNames = Object.keys(this.filesStore[lesson.id]);
       this.currentActiveFile = fileNames[0] || (this.isWebLesson() ? 'index.html' : 'main.py');
       this.renderTabs(fileNames);
       this.loadActiveFileContent();
       this.clearTerminal();
-      this.appendTerminalOutput(`Reset files for Lesson ${lesson.id}.\n`, 'term-info');
+      this.appendTerminalOutput(`Reset files for Lesson ${lesson.id} and marked as not done.\n`, 'term-info');
       if (this.isWebLesson()) this.refreshWebPreview();
     }
   }
 
-  showFeedback(isSuccess, message) {
+  showFeedback(isSuccess, message, hint) {
     this.feedbackBanner.style.display = 'flex';
     this.feedbackBanner.className = `feedback-banner ${isSuccess ? 'success' : 'error'}`;
-    this.feedbackText.innerHTML = `${isSuccess ? '🎉' : '⚠️'} ${message}`;
+    if (isSuccess) {
+      this.feedbackText.innerHTML = `<span>🎉</span> <span><strong>Success!</strong> ${message}</span>`;
+    } else {
+      const hintHtml = hint ? `<div class="feedback-hint" style="margin-top: 4px; font-size: 11px; font-weight: normal; opacity: 0.95;">💡 <strong>Hint:</strong> ${hint}</div>` : '';
+      this.feedbackText.innerHTML = `<div style="display: flex; gap: 8px; align-items: flex-start;"><span>⚠️</span> <div><span style="font-weight: 600;">${message}</span>${hintHtml}</div></div>`;
+    }
   }
 
   hideFeedback() {

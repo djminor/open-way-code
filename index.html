@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +8,22 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 </head>
+
 <body class="landing-wrapper">
 
   <!-- Top Navigation Header -->
   <header class="landing-header">
     <div class="brand">
       <div class="brand-icon" title="OpenWay Code">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
       </div>
       <div>
         <div class="brand-title">OpenWay Code</div>
@@ -25,10 +33,12 @@
 
     <nav class="landing-nav-links">
       <a href="#curriculum" class="landing-nav-link">Curriculum</a>
+      <a href="playground.html" class="landing-nav-link" style="color: #c084fc; font-weight: 600;">🎮 Playground</a>
       <a href="#pillars" class="landing-nav-link">Why OpenWay</a>
       <a href="#story" class="landing-nav-link">Our Story</a>
       <a href="#facilitators" class="landing-nav-link">Educators</a>
-      <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme" style="margin-right: 4px;">☀️</button>
+      <button id="themeToggleBtn" class="btn-icon" title="Toggle Light/Dark Theme"
+        style="margin-right: 4px;">☀️</button>
       <a href="studio.html" class="btn-cta-primary" id="headerLaunchBtn" style="padding: 7px 16px; font-size: 13px;">
         Launch Studio ❯
       </a>
@@ -46,11 +56,16 @@
           Clear pathways into computer science for every young mind.
         </h1>
         <p class="hero-subheading">
-          A hands-on, 12-hour coding curriculum and in-browser studio. Zero software downloads, zero command-line headaches, and zero cost—learn to think like an engineer through real-world problem solving.
+          A hands-on, 12-hour coding curriculum and in-browser studio. Zero software downloads, zero command-line
+          headaches, and zero cost—learn to think like an engineer through real-world problem solving.
         </p>
         <div class="hero-actions">
           <a href="studio.html" class="btn-cta-primary" id="heroStartBtn">
             <span>Start Lesson 1</span> <span>❯</span>
+          </a>
+          <a href="playground.html" class="btn-cta-secondary"
+            style="border-color: rgba(168, 85, 247, 0.4); color: #d8b4fe;">
+            <span>🎮 Open Playground</span> <span>❯</span>
           </a>
           <a href="#curriculum" class="btn-cta-secondary">
             <span>Explore 12 Lessons</span> <span>↓</span>
@@ -69,21 +84,17 @@
           <div class="hero-code-title">main.py — Lesson 1</div>
           <span style="font-size: 11px; color: var(--accent-color); font-weight: 600;">Python 3</span>
         </div>
-        <pre class="hero-code-body"><code><span class="tok-comment"># The Robot Toast Algorithm</span>
-<span class="tok-kw">def</span> <span class="tok-fn">make_toast</span>(has_bread, is_plugged_in):
-    <span class="tok-kw">if not</span> is_plugged_in:
-        <span class="tok-fn">print</span>(<span class="tok-str">"Error: Toaster needs power!"</span>)
-        <span class="tok-kw">return False</span>
-    <span class="tok-kw">if not</span> has_bread:
-        <span class="tok-fn">print</span>(<span class="tok-str">"Error: No bread available!"</span>)
-        <span class="tok-kw">return False</span>
-    
-    <span class="tok-fn">print</span>(<span class="tok-str">"Step 1: Lower bread into slot"</span>)
-    <span class="tok-fn">print</span>(<span class="tok-str">"Step 2: Dial heat level to 3"</span>)
-    <span class="tok-fn">print</span>(<span class="tok-str">"Success: Warm golden toast ready!"</span>)
-    <span class="tok-kw">return True</span>
+        <pre class="hero-code-body"><code><span class="tok-comment"># Bubble Sort: Comparator &amp; Iterator</span>
+<span class="tok-kw">def</span> <span class="tok-fn">bubble_sort</span>(numbers):
+    n = <span class="tok-fn">len</span>(numbers)
+    <span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(n):
+        <span class="tok-kw">for</span> j <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">0</span>, n - i - <span class="tok-num">1</span>):
+            <span class="tok-comment"># Compare adjacent items</span>
+            <span class="tok-kw">if</span> numbers[j] &gt; numbers[j + <span class="tok-num">1</span>]:
+                numbers[j], numbers[j + <span class="tok-num">1</span>] = numbers[j + <span class="tok-num">1</span>], numbers[j]
+    <span class="tok-kw">return</span> numbers
 
-make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class="tok-kw">True</span>)</code></pre>
+<span class="tok-fn">print</span>(bubble_sort([<span class="tok-num">5</span>, <span class="tok-num">1</span>, <span class="tok-num">4</span>, <span class="tok-num">2</span>, <span class="tok-num">8</span>]))</code></pre>
       </div>
     </section>
 
@@ -94,7 +105,9 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
           <div class="section-tag">Guiding Principles</div>
           <h2 class="section-title">Built for understanding, not rote syntax</h2>
           <p class="section-subtitle">
-            AI can generate code in seconds. We teach students the foundational computational thinking needed to direct, verify, and architect solutions.
+            AI can generate code in seconds, and in most businesses today, that's exactly what it does. At OpenWay Code,
+            we instead focus on teaching students the problem-solving and engineering skills they need to be architects
+            rather than just coders.
           </p>
         </div>
 
@@ -103,7 +116,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">🧠</div>
             <div class="pillar-title">Problem Solving First</div>
             <div class="pillar-text">
-              Computational thinking is the real superpower. Students learn problem decomposition, pattern recognition, and algorithm design.
+              We teach computational thinking to help students decompose problems and become confident in their own
+              skills and abilities.
             </div>
           </div>
 
@@ -111,15 +125,16 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">🌐</div>
             <div class="pillar-title">Zero Installation Barrier</div>
             <div class="pillar-text">
-              Runs 100% inside any web browser on Chromebooks, tablets, or library computers. No software installs or environment configs required.
+              Runs 100% inside any web browser on Chromebooks, tablets, or library computers. No software installs or
+              environment configs required.
             </div>
           </div>
 
           <div class="pillar-card">
             <div class="pillar-icon">🧭</div>
-            <div class="pillar-title">Authentic Algorithmic Quests</div>
+            <div class="pillar-title">Real-World Algorithmic Assignments</div>
             <div class="pillar-text">
-              Parse messy scraped HTML with regular expressions, maximize festival schedules with greedy sorting, and optimize routes across Middle Earth.
+              Students work on coding problems that bridge the gap between abstract software and their real lives.
             </div>
           </div>
 
@@ -127,7 +142,7 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">🤝</div>
             <div class="pillar-title">Community-Rooted & Free</div>
             <div class="pillar-text">
-              Originating from community workshops at United Way, OpenWay Code is completely free and open for classrooms, clubs, and independent learners.
+              OpenWay Code is a free and open-access project that originated from community workshops at United Way.
             </div>
           </div>
         </div>
@@ -141,12 +156,13 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
           <div class="section-tag">Course Roadmap</div>
           <h2 class="section-title">The 12-Hour Journey</h2>
           <p class="section-subtitle">
-            Each lesson is crafted as a 60-minute, self-contained workshop module with guided concepts, hands-on challenges, and immediate terminal feedback.
+            Each lesson is crafted as a 60-minute, self-contained workshop module with guided concepts, hands-on
+            challenges, and immediate terminal feedback.
           </p>
         </div>
 
         <div class="curriculum-grid">
-          
+
           <!-- Lesson 1 -->
           <a href="studio.html?lesson=1" class="curriculum-card">
             <div>
@@ -154,11 +170,11 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-num">LESSON 01</span>
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
-              <h3 class="card-title">Why Code? The Problem-Solving Mindset</h3>
-              <p class="card-desc">Computational thinking, algorithmic recipes, and why humans remain the architects in the era of artificial intelligence.</p>
+              <h3 class="card-title">Sorting Algorithms & Real-Life CS</h3>
+              <p class="card-desc">Why learn to code? From Assembly to Bubble Sort, Merge Sort, and algorithmic thinking in the era of AI.</p>
             </div>
             <div class="card-footer">
-              <span>Python &bull; Logic</span>
+              <span>Python &bull; Algorithms</span>
               <span class="card-cta">Start ❯</span>
             </div>
           </a>
@@ -171,7 +187,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">How the Web Works: DevTools & The DOM</h3>
-              <p class="card-desc">Inspect live websites, explore the Document Object Model tree, and modify page content directly using browser DevTools.</p>
+              <p class="card-desc">Inspect live websites, explore the Document Object Model tree, and modify page
+                content directly using browser DevTools.</p>
             </div>
             <div class="card-footer">
               <span>Web &bull; DevTools</span>
@@ -187,7 +204,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">First Web App: Interactive Portfolio</h3>
-              <p class="card-desc">Personalize an interactive web application spanning HTML structure, CSS styling, and JavaScript interactivity with live browser preview.</p>
+              <p class="card-desc">Personalize an interactive web application spanning HTML structure, CSS styling, and
+                JavaScript interactivity with live browser preview.</p>
             </div>
             <div class="card-footer">
               <span>HTML / CSS / JS</span>
@@ -203,7 +221,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Messy Data Cleanup with Regular Expressions</h3>
-              <p class="card-desc">Extract, scrub, and deduplicate contact records from messy scraped HTML using regular expressions and export clean CSV datasets.</p>
+              <p class="card-desc">Extract, scrub, and deduplicate contact records from messy scraped HTML using regular
+                expressions and export clean CSV datasets.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Regex</span>
@@ -219,7 +238,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Event Optimization: Greedy Scheduling</h3>
-              <p class="card-desc">Solve real-world resource competition with the famous Earliest End Time greedy algorithm to maximize attended events without conflict.</p>
+              <p class="card-desc">Solve real-world resource competition with the famous Earliest End Time greedy
+                algorithm to maximize attended events without conflict.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Greedy Algorithms</span>
@@ -235,7 +255,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Middle Earth Routing: Nearest Neighbor</h3>
-              <p class="card-desc">Tackle the Traveling Salesperson Problem across Middle Earth coordinates using Manhattan distance and nearest neighbor optimization.</p>
+              <p class="card-desc">Tackle the Traveling Salesperson Problem across Middle Earth coordinates using
+                Manhattan distance and nearest neighbor optimization.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Maps & Graphs</span>
@@ -251,7 +272,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Leveraging AI in Coding: Co-Pilot Thinking</h3>
-              <p class="card-desc">Prompt engineering for programmers: critically evaluate AI-generated code, identify edge cases, and build automated verification test suites.</p>
+              <p class="card-desc">Prompt engineering for programmers: critically evaluate AI-generated code, identify
+                edge cases, and build automated verification test suites.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; AI Co-Pilot</span>
@@ -267,7 +289,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">2D Game Physics & Collisions</h3>
-              <p class="card-desc">Explore velocity vectors, gravity acceleration, boundary bounces, and bounding box collision detection in arcade mini-games.</p>
+              <p class="card-desc">Explore velocity vectors, gravity acceleration, boundary bounces, and bounding box
+                collision detection in arcade mini-games.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Physics</span>
@@ -283,7 +306,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Live Data & Weather APIs</h3>
-              <p class="card-desc">Connect programs to real-world live information feeds, parse JSON payloads, and extract meaningful metrics from external web services.</p>
+              <p class="card-desc">Connect programs to real-world live information feeds, parse JSON payloads, and
+                extract meaningful metrics from external web services.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; APIs</span>
@@ -299,7 +323,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Data Science & Statistics</h3>
-              <p class="card-desc">Harness programming to understand patterns in numbers: compute statistical averages, medians, outlier detection, and data summaries.</p>
+              <p class="card-desc">Harness programming to understand patterns in numbers: compute statistical averages,
+                medians, outlier detection, and data summaries.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Data Science</span>
@@ -315,7 +340,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Cybersecurity Basics</h3>
-              <p class="card-desc">Discover the defensive side of coding: build Caesar ciphers, explore hashing fundamentals, and learn how to sanitize user input against attacks.</p>
+              <p class="card-desc">Discover the defensive side of coding: build Caesar ciphers, explore hashing
+                fundamentals, and learn how to sanitize user input against attacks.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Security</span>
@@ -331,7 +357,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
                 <span class="card-duration">⏱️ 60 mins</span>
               </div>
               <h3 class="card-title">Capstone Project Showcase</h3>
-              <p class="card-desc">Put every algorithmic and problem-solving tool to work: design, write, test, and present an original software project of your choice.</p>
+              <p class="card-desc">Put every algorithmic and problem-solving tool to work: design, write, test, and
+                present an original software project of your choice.</p>
             </div>
             <div class="card-footer">
               <span>Python &bull; Capstone</span>
@@ -350,13 +377,19 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
           <div class="section-tag" style="text-align: left; margin-bottom: 8px;">The Origin</div>
           <h3>From a Community Workshop to an Open Platform</h3>
           <p>
-            OpenWay Code started as a free, in-person coding class hosted at United Way. The goal was straightforward: remove the intimidation factor, eliminate the confusing software installation barriers that turn young people away, and make computer science feel as welcoming and accessible as visiting a local public library.
+            OpenWay Code started as a free, in-person coding class hosted at United Way. The goal was straightforward:
+            remove the intimidation factor, eliminate the confusing software installation barriers that turn young
+            people away, and make computer science feel as welcoming and accessible as visiting a local public library.
           </p>
           <p>
-            Too many young students get discouraged before their first program even runs because of terminal errors, mismatched Python versions, or complicated IDE setups. OpenWay Code was engineered so that every student—regardless of whether they have the newest laptop or a shared library Chromebook—can click a link and immediately write, test, and master real code.
+            Too many young students get discouraged before their first program even runs because of terminal errors,
+            mismatched Python versions, or complicated IDE setups. OpenWay Code was engineered so that every
+            student—regardless of whether they have the newest laptop or a shared library Chromebook—can click a link
+            and immediately write, test, and master real code.
           </p>
           <p>
-            Today, this entire platform is open, free, and self-hosted with zero backend servers or recurring costs. Use it in community centers, classrooms, after-school programs, or for self-paced independent study.
+            Today, this entire platform is open, free, and self-hosted with zero backend servers or recurring costs. Use
+            it in community centers, classrooms, after-school programs, or for self-paced independent study.
           </p>
         </div>
       </div>
@@ -369,7 +402,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
           <div class="section-tag">For Teachers & Volunteers</div>
           <h2 class="section-title">Built to support educators in the room</h2>
           <p class="section-subtitle">
-            Whether you are a seasoned software engineer volunteering at a local youth center or a teacher leading your first CS elective, OpenWay Code provides built-in facilitator tools.
+            Whether you are a seasoned software engineer volunteering at a local youth center or a teacher leading your
+            first CS elective, OpenWay Code provides built-in facilitator tools.
           </p>
         </div>
 
@@ -378,7 +412,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">📽️</div>
             <div class="pillar-title">Classroom Projector Board</div>
             <div class="pillar-text">
-              Press <kbd>Alt+L</kbd> inside the studio or open <code>/instructor.html</code> to project large-format, high-visibility step-by-step code for students to follow along and copy down live in class.
+              Press <kbd>Alt+L</kbd> inside the studio or open <code>/instructor.html</code> to project large-format,
+              high-visibility step-by-step code for students to follow along and copy down live in class.
             </div>
           </div>
 
@@ -386,7 +421,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">▶</div>
             <div class="pillar-title">Live Demonstration Engine</div>
             <div class="pillar-text">
-              Run working reference code directly on the projector screen with adjustable classroom font sizing and 1-click injection into the student studio.
+              Run working reference code directly on the projector screen with adjustable classroom font sizing and
+              1-click injection into the student studio.
             </div>
           </div>
 
@@ -394,7 +430,8 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
             <div class="pillar-icon">⏱️</div>
             <div class="pillar-title">60-Minute Lesson Pacing</div>
             <div class="pillar-text">
-              Each module follows a structured 4-stage cadence: 15m Concept Hook &rarr; 20m Guided Walkthrough &rarr; 15m Student Mission &rarr; 10m Student Demos.
+              Each module follows a structured 4-stage cadence: 15m Concept Hook &rarr; 20m Guided Walkthrough &rarr;
+              15m Student Mission &rarr; 10m Student Demos.
             </div>
           </div>
         </div>
@@ -407,6 +444,7 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
     <div class="section-container">
       <div class="footer-links">
         <a href="studio.html" class="footer-link">Launch Studio</a>
+        <a href="playground.html" class="footer-link" style="color: #c084fc; font-weight: 600;">🎮 Coding Playground</a>
         <a href="#curriculum" class="footer-link">12-Week Curriculum</a>
         <a href="#story" class="footer-link">United Way Story</a>
         <a href="#facilitators" class="footer-link">Educator Tools</a>
@@ -426,7 +464,7 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
     // Theme toggle
     const themeBtn = document.getElementById('themeToggleBtn');
     let currentTheme = localStorage.getItem('openway_theme') || 'dark';
-    
+
     function applyTheme(theme) {
       currentTheme = theme;
       document.documentElement.setAttribute('data-theme', theme);
@@ -435,7 +473,7 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
         themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
       }
     }
-    
+
     applyTheme(currentTheme);
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
@@ -462,4 +500,5 @@ make_toast(has_bread=<span class="tok-kw">True</span>, is_plugged_in=<span class
     }
   </script>
 </body>
+
 </html>

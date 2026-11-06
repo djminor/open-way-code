@@ -9,73 +9,58 @@ const INSTRUCTOR_GUIDES = {
   // LESSON 1
   // --------------------------------------------------------------------------
   1: {
-    title: "Lesson 1: Why Code? The Problem-Solving Mindset",
-    goal: "Deconstruct the Robot Toast algorithm into sequential steps and error prerequisites in Python.",
+    title: "Lesson 1: Sorting Algorithms: Real-Life Computer Science",
+    goal: "Demonstrate why we learn to code through Assembly vs Real Code, AI efficiency limits, and Bubble Sort's comparator & iterator.",
     pacing: {
-      hook: "10 mins — The human brain vs the literal computer (What happens if we forget power?)",
-      liveCoding: "25 mins — Live code the prerequisite error checks and sequential loop on the board",
-      studentWork: "20 mins — Students copy the logic, toggle has_bread, and observe terminal output",
-      debrief: "5 mins — Group debrief: Why human logic drives code, not just syntax"
+      hook: "10 mins — Claude / AI Coder Demo & 'Why learn to code?' discussion + Assembly vs C/Python",
+      liveCoding: "25 mins — Whiteboard array: Explain Iterator vs Comparator, code Bubble Sort live",
+      studentWork: "20 mins — Students run Bubble Sort in Python, observe swap iterations, and compare x² vs Merge Sort",
+      debrief: "5 mins — Human brain (0.58 kWh) vs AI (7,500-37,000 kWh): Why algorithmic efficiency matters"
     },
     steps: [
       {
         num: 1,
-        title: "Check Prerequisites First",
-        prompt: "Explain to the room: A computer cannot assume anything! Before toasting, we must verify power and bread.",
-        code: `def make_toast(has_bread, has_toaster, is_plugged_in):
-    print("Robot Toast Protocol Starting...")
-    print("")
-    
-    # Check prerequisites first
-    if not has_toaster or not is_plugged_in:
-        return "Error: Toaster is missing or unplugged!"
-    if not has_bread:
-        return "Error: No bread available!"`,
-        checkpoint: "✋ Raise a hand when you have the two 'if' checks typed in!"
+        title: "The Comparator (Comparing & Swapping Adjacent Items)",
+        prompt: "Whiteboard: Take two numbers. If the left number is greater than the right number, swap them.",
+        code: `# 1. The Comparator:
+# Compare adjacent items and swap if out of order
+if numbers[j] > numbers[j + 1]:
+    numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]`,
+        checkpoint: "✋ Raise a hand when you understand how Python swaps two variables in one line!"
       },
       {
         num: 2,
-        title: "Sequential Step-by-Step Recipe Loop",
-        prompt: "Show the class: Once checks pass, the robot follows each step in exact order from top to bottom.",
-        code: `    steps = [
-        "Take 1 slice of bread",
-        "Place bread in toaster slot",
-        "Set heat dial to 3",
-        "Push down lever",
-        "Wait for toaster to pop up",
-        "Carefully remove warm toast",
-        "Spread butter evenly"
-    ]
-    
-    for i, step in enumerate(steps, 1):
-        print("  Step " + str(i) + ": " + step)
-        
-    print("")
-    return "Success: Toast ready! Algorithmic recipe complete."`,
-        checkpoint: "✋ Check: Did everyone type the 'for i, step in enumerate(steps, 1):' loop?"
+        title: "The Iterator (Nested Loop for Passes and Pairs)",
+        prompt: "Wrap the comparator in an outer loop (passes) and inner loop (adjacent pairs) to cycle through the list.",
+        code: `def bubble_sort(numbers):
+    n = len(numbers)
+    # The Iterator: outer loop for passes, inner loop for pairs
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if numbers[j] > numbers[j + 1]:
+                numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]
+    return numbers`,
+        checkpoint: "✋ Check: Did everyone type the nested loops for the iterator?"
       },
       {
         num: 3,
-        title: "Call Function & Test Failures",
-        prompt: "Live test: Call the recipe with True, then test what happens when has_bread=False.",
-        code: `# Test normal operation:
-result = make_toast(has_bread=True, has_toaster=True, is_plugged_in=True)
-print(result)
-
-# Test failure mode:
-# result_fail = make_toast(has_bread=False, has_toaster=True, is_plugged_in=True)
-# print(result_fail)`,
-        checkpoint: "Click Run! You should see all 7 steps followed by 'Success: Toast ready!'"
+        title: "Run, Test & Measure Iterations (x²)",
+        prompt: "Run the algorithm with [5, 1, 4, 2, 8]. Notice how the number of comparisons scales with x².",
+        code: `numbers = [5, 1, 4, 2, 8]
+print("Before:", numbers)
+sorted_nums = bubble_sort(numbers)
+print("After: ", sorted_nums)`,
+        checkpoint: "Click Run! You should see the list sorted into ascending order [1, 2, 4, 5, 8]."
       }
     ],
     discussionQuestions: [
-      "Why does the computer need to check if it's plugged in BEFORE putting bread in?",
-      "If we told an alien to make toast without checking for bread, what ridiculous bug might happen?",
-      "Why is computer code simply an unambiguous recipe?"
+      "Why does AI use 7,500 to 37,000 kWh to process 74 GB while the human brain uses only 0.58 kWh?",
+      "For 1,000,000 numbers, why does Bubble Sort take hours while Merge Sort takes less than half a second?",
+      "When is the solution a bigger, faster computer, and when is it a more efficient algorithm?"
     ],
     gotchas: [
-      "Colons (:) are required at the end of 'def' and 'if' lines.",
-      "Lines inside functions and loops must be indented by 4 spaces."
+      "Remember the inner loop bounds: 'range(0, n - i - 1)' prevents checking past the end of the list.",
+      "Bubble Sort has x² iterations in the worst case, making it inefficient for massive datasets."
     ]
   },
 
@@ -483,4 +468,8 @@ if (typeof LESSONS_DATA !== 'undefined') {
       lesson.instructorGuide = INSTRUCTOR_GUIDES[lesson.id];
     }
   });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { INSTRUCTOR_GUIDES };
 }

@@ -25,7 +25,7 @@ npm start
 # or: node server.js
 ```
 
-Then open **[http://localhost:8000](http://localhost:8000)** in your browser *(or directly open [`index.html`](file:///Users/djsproul/Desktop/AntigravityDemo/index.html))*.
+Then open **[http://localhost:8000](http://localhost:8000)** in your browser *(or directly open [`index.html`](file:///Users/djsproul/Desktop/OpenWayCode/index.html))*.
 
 ---
 
@@ -84,7 +84,7 @@ Because OpenWay Code runs entirely client-side, GitHub Pages will host it for fr
 Designed specifically for teachers projecting onto a classroom wall while students copy down and follow along with code in real time:
 
 - **Inside Studio**: Press <kbd>Alt+L</kbd> (or click **`📽️ Instructor Board`** in the header).
-- **Dedicated Projector Window**: Open **[`instructor.html`](file:///Users/djsproul/Desktop/AntigravityDemo/instructor.html)** (or `http://localhost:8000/instructor`) to project on a second display while keeping your laptop screen free.
+- **Dedicated Projector Window**: Open **[`instructor.html`](file:///Users/djsproul/Desktop/OpenWayCode/instructor.html)** (or `http://localhost:8000/instructor`) to project on a second display while keeping your laptop screen free.
 
 ### Key Classroom Features:
 1. **📋 Step-by-Step Copy Board**:

@@ -254,3 +254,10 @@ def open(filename, mode="r"):
 </html>`;
   }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PlaygroundRunner;
+}
+if (typeof window !== 'undefined') {
+  window.PlaygroundRunner = PlaygroundRunner;
+}
