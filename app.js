@@ -85,6 +85,7 @@ class CodingApp {
 
     // Virtual filesystem store: { [lessonId]: { [fileName]: content } }
     this.filesStore = JSON.parse(localStorage.getItem('openway_files_v1') || '{}');
+    this.injectedSteps = new Set(JSON.parse(localStorage.getItem('openway_injected_steps') || '[]'));
     this.currentActiveFile = 'main.py';
     this.activeView = 'code'; // 'code', 'preview', 'map', 'ai'
 
@@ -253,6 +254,24 @@ class CodingApp {
       }
       if (e.key === 'Escape') {
         this.toggleLokiModal(false);
+      }
+    });
+
+    // Cross-window synchronization (e.g. from instructor projector popout)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'openway_files_v1' || e.key === 'openway_injected_steps' || e.key === 'openway_step_event') {
+        this.filesStore = JSON.parse(localStorage.getItem('openway_files_v1') || '{}');
+        this.injectedSteps = new Set(JSON.parse(localStorage.getItem('openway_injected_steps') || '[]'));
+        const lesson = this.lessons[this.currentLessonIndex];
+        if (lesson && this.filesStore[lesson.id]) {
+          this.loadActiveFileContent();
+          if (this.isWebLesson()) {
+            this.refreshWebPreview();
+          }
+          if (this.lokiOverlay && this.lokiOverlay.classList.contains('open')) {
+            this.renderLokiContent();
+          }
+        }
       }
     });
 
@@ -614,12 +633,14 @@ class CodingApp {
   }
 
   updateLineNumbers() {
+    if (!this.codeEditor || !this.lineNumbers) return;
     const lines = this.codeEditor.value.split('\n').length;
     let numbers = '';
     for (let i = 1; i <= Math.max(lines, 1); i++) {
       numbers += i + '\n';
     }
     this.lineNumbers.textContent = numbers;
+    this.lineNumbers.style.minWidth = lines >= 100 ? '58px' : '46px';
   }
 
   renderHints(hints) {
@@ -722,12 +743,27 @@ class CodingApp {
       this.filesStore[lesson.id] = { ...lesson.files };
       localStorage.setItem('openway_files_v1', JSON.stringify(this.filesStore));
 
+      // Clear injected step solutions for this lesson
+      for (const key of Array.from(this.injectedSteps)) {
+        if (key.startsWith(`${lesson.id}_`)) {
+          this.injectedSteps.delete(key);
+        }
+      }
+      localStorage.setItem('openway_injected_steps', JSON.stringify([...this.injectedSteps]));
+
       // Mark the lesson as not done
       this.completedLessons.delete(lesson.id);
       localStorage.setItem('openway_completed_v1', JSON.stringify([...this.completedLessons]));
       this.renderSidebar();
       this.updateProgress();
       this.hideFeedback();
+
+      // Broadcast reset event for instructor window
+      localStorage.setItem('openway_step_event', JSON.stringify({
+        lessonId: lesson.id,
+        action: 'reset',
+        timestamp: Date.now()
+      }));
 
       const fileNames = Object.keys(this.filesStore[lesson.id]);
       this.currentActiveFile = fileNames[0] || (this.isWebLesson() ? 'index.html' : 'main.py');
@@ -736,6 +772,9 @@ class CodingApp {
       this.clearTerminal();
       this.appendTerminalOutput(`Reset files for Lesson ${lesson.id} and marked as not done.\n`, 'term-info');
       if (this.isWebLesson()) this.refreshWebPreview();
+      if (this.lokiOverlay && this.lokiOverlay.classList.contains('open')) {
+        this.renderLokiContent();
+      }
     }
   }
 
@@ -807,6 +846,79 @@ class CodingApp {
       this.instructorDemoOutput = "❌ Demonstration Error:\n" + (result.error || "Unknown execution error");
     }
     this.renderLokiContent();
+  }
+
+  isStepInjected(lessonId, stepNum) {
+    return this.injectedSteps.has(`${lessonId}_step_${stepNum}`);
+  }
+
+  toggleStepSolution(lessonId, stepNum) {
+    const lesson = this.lessons.find(l => l.id === lessonId);
+    if (!lesson) return false;
+    const guide = lesson.instructorGuide || (typeof INSTRUCTOR_GUIDES !== 'undefined' && INSTRUCTOR_GUIDES[lessonId]);
+    if (!guide || !guide.steps) return false;
+    const step = guide.steps.find(s => s.num === stepNum);
+    if (!step || !step.inject) return false;
+
+    const targetFile = step.targetFile || (this.isWebLesson() ? 'index.html' : 'main.py');
+    if (!this.filesStore[lessonId]) {
+      this.filesStore[lessonId] = { ...lesson.files };
+    }
+    let content = this.filesStore[lessonId][targetFile] || '';
+    const stepKey = `${lessonId}_step_${stepNum}`;
+    const isInjected = this.injectedSteps.has(stepKey);
+
+    if (isInjected) {
+      if (typeof step.inject.revert === 'string') {
+        if (content.includes(step.inject.replace)) {
+          content = content.replace(step.inject.replace, step.inject.revert);
+        } else if (step.inject.find instanceof RegExp && step.inject.find.test(content)) {
+          content = content.replace(step.inject.find, step.inject.revert);
+        }
+      }
+      this.injectedSteps.delete(stepKey);
+    } else {
+      if (step.inject.find instanceof RegExp) {
+        if (step.inject.find.test(content)) {
+          content = content.replace(step.inject.find, step.inject.replace);
+        }
+      } else if (typeof step.inject.find === 'string') {
+        if (content.includes(step.inject.find)) {
+          content = content.replace(step.inject.find, step.inject.replace);
+        }
+      }
+      this.injectedSteps.add(stepKey);
+    }
+
+    this.filesStore[lessonId][targetFile] = content;
+    localStorage.setItem('openway_files_v1', JSON.stringify(this.filesStore));
+    localStorage.setItem('openway_injected_steps', JSON.stringify([...this.injectedSteps]));
+
+    // Broadcast across windows (e.g. instructor.html <-> studio.html)
+    localStorage.setItem('openway_step_event', JSON.stringify({
+      lessonId,
+      stepNum,
+      targetFile,
+      action: isInjected ? 'revert' : 'inject',
+      timestamp: Date.now()
+    }));
+
+    if (this.lessons[this.currentLessonIndex].id === lessonId) {
+      if (this.currentActiveFile === targetFile) {
+        this.loadActiveFileContent();
+      }
+      if (this.isWebLesson()) {
+        this.refreshWebPreview();
+      }
+      this.renderLokiContent();
+      if (isInjected) {
+        this.appendTerminalOutput(`\n↩ Step ${stepNum} solution reverted from ${targetFile}.\n`, 'term-info');
+      } else {
+        this.appendTerminalOutput(`\n🪄 Injected Step ${stepNum} solution into ${targetFile}!\n`, 'term-info');
+      }
+    }
+
+    return !isInjected;
   }
 
   renderLokiContent() {
@@ -915,6 +1027,7 @@ class CodingApp {
       } else {
         bodyHtml += `<div class="step-container">`;
         steps.forEach((s) => {
+          const isInjected = this.isStepInjected(lesson.id, s.num);
           bodyHtml += `
             <div class="step-card">
               <div class="step-header">
@@ -925,7 +1038,19 @@ class CodingApp {
                 🗣️ <strong>Instructor Prompt:</strong> ${s.prompt}
               </div>
               <div class="step-code-box">
-                <button class="btn-copy-step" data-step-code="${encodeURIComponent(s.code)}">📋 Copy Snippet</button>
+                <div class="step-actions-bar">
+                  ${s.inject ? `
+                    <button class="btn-step-action ${isInjected ? 'btn-step-revert' : 'btn-step-inject'}"
+                            data-step-inject="${s.num}"
+                            title="${isInjected ? `Remove Step ${s.num} solution from student workspace` : `Inject Step ${s.num} solution into student workspace`}">
+                      <span>${isInjected ? '↩' : '📥'}</span>
+                      <span>${isInjected ? `Remove Step ${s.num}` : `Inject Step ${s.num}`}</span>
+                    </button>
+                  ` : ''}
+                  <button class="btn-step-action btn-copy-step" data-step-code="${encodeURIComponent(s.code)}" title="Copy code snippet">
+                    <span>📋</span> Copy Snippet
+                  </button>
+                </div>
                 <pre class="step-code-pre"><code>${this.escapeHtml(s.code)}</code></pre>
               </div>
               <div class="step-checkpoint">
@@ -1073,6 +1198,17 @@ class CodingApp {
         this.runCurrentCode();
       });
     }
+
+    // Step inject/revert buttons
+    const injectBtns = this.lokiBody.querySelectorAll('[data-step-inject]');
+    injectBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const stepNum = parseInt(btn.getAttribute('data-step-inject'), 10);
+        if (!isNaN(stepNum)) {
+          this.toggleStepSolution(lesson.id, stepNum);
+        }
+      });
+    });
 
     // Step copy buttons
     const copyBtns = this.lokiBody.querySelectorAll('.btn-copy-step');

@@ -4,6 +4,7 @@
  */
 
 const { INSTRUCTOR_GUIDES } = require('../instructor_guides');
+const { LESSONS_DATA } = require('../lessons');
 
 describe('Instructor & Projector Guides Module', () => {
   test('defines instructor guides object', () => {
@@ -55,5 +56,46 @@ describe('Instructor & Projector Guides Module', () => {
       expect(Array.isArray(guide.steps)).toBe(true);
       expect(guide.steps.length).toBeGreaterThan(0);
     });
+  });
+
+  test('all actionable steps define valid inject configurations matching starter files', () => {
+    let injectCount = 0;
+    Object.entries(INSTRUCTOR_GUIDES).forEach(([lessonId, guide]) => {
+      const lesson = LESSONS_DATA.find(l => l.id === Number(lessonId));
+      if (!lesson) return;
+
+      guide.steps.forEach(step => {
+        if (step.inject) {
+          injectCount++;
+          expect(step.inject.find).toBeDefined();
+          expect(typeof step.inject.replace).toBe('string');
+          expect(typeof step.inject.revert).toBe('string');
+
+          const targetFile = step.targetFile || (lesson.category === 'web' ? 'index.html' : 'main.py');
+          const starterContent = lesson.files[targetFile];
+          expect(starterContent).toBeDefined();
+
+          const matchesStarter = step.inject.find instanceof RegExp 
+            ? step.inject.find.test(starterContent) 
+            : starterContent.includes(step.inject.find);
+          expect(matchesStarter).toBe(true);
+
+          // Verify injection transformation
+          const injectedContent = starterContent.replace(step.inject.find, step.inject.replace);
+          expect(injectedContent).not.toEqual(starterContent);
+
+          // Verify revert restoration
+          let revertedContent;
+          if (injectedContent.includes(step.inject.replace)) {
+            revertedContent = injectedContent.replace(step.inject.replace, step.inject.revert);
+          } else {
+            revertedContent = injectedContent.replace(step.inject.find, step.inject.revert);
+          }
+          expect(revertedContent).toEqual(starterContent);
+        }
+      });
+    });
+
+    expect(injectCount).toBeGreaterThanOrEqual(14);
   });
 });

@@ -714,6 +714,7 @@ print("Primes below 50:", primes_under_50)
       numStr += i + '\n';
     }
     this.lineNumbers.textContent = numStr;
+    this.lineNumbers.style.minWidth = lines >= 100 ? '58px' : '46px';
     if (this.linesCountText) {
       this.linesCountText.textContent = `${lines} ${lines === 1 ? 'line' : 'lines'}`;
     }

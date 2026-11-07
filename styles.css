@@ -920,12 +920,13 @@ body.studio-page {
 }
 
 .line-numbers {
-  width: 48px;
-  padding: 16px 8px;
+  min-width: 46px;
+  width: auto;
+  padding: 16px 10px;
   text-align: right;
   font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 22px;
   color: var(--text-muted);
   user-select: none;
   border-right: 1px solid var(--border-subtle);
@@ -933,6 +934,10 @@ body.studio-page {
   overflow: hidden;
   height: 100%;
   flex-shrink: 0;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+  box-sizing: border-box;
 }
 
 .code-textarea {
@@ -943,7 +948,7 @@ body.studio-page {
   padding: 16px 18px;
   font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 22px;
   color: var(--text-bright);
   caret-color: var(--text-bright);
   resize: none;
@@ -954,6 +959,21 @@ body.studio-page {
   height: 100%;
   min-height: 0;
   tab-size: 4;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .line-numbers {
+    min-width: 40px;
+    padding: 14px 6px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+  .code-textarea {
+    padding: 14px 12px;
+    font-size: 12px;
+    line-height: 20px;
+  }
 }
 
 .code-textarea::selection,
@@ -1652,12 +1672,58 @@ body.studio-page {
   color: var(--code-preview-text);
   white-space: pre;
   overflow-x: auto;
+  padding-top: 20px;
 }
 
-.btn-copy-step {
+.step-actions-bar {
   position: absolute;
   top: 14px;
   right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+}
+
+.btn-step-action {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+}
+
+.btn-step-inject {
+  background: var(--accent-green-subtle);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: var(--accent-green);
+}
+
+.btn-step-inject:hover {
+  background: var(--accent-green);
+  color: #ffffff;
+  border-color: var(--accent-green);
+}
+
+.btn-step-revert {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.btn-step-revert:hover {
+  background: #f59e0b;
+  color: #0f172a;
+  border-color: #f59e0b;
+}
+
+.btn-copy-step {
+  position: static;
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
   color: var(--text-secondary);

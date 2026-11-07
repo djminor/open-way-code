@@ -247,6 +247,9 @@
       <button id="btnRunProjectorDemo" class="btn-instructor-action btn-run-demo" title="Run demonstration code on projector">
         <span>▶</span> Run Demo
       </button>
+      <button id="btnInjectFullSolution" class="btn-instructor-action" title="Inject complete reference solution into student studio">
+        <span>📥</span> Inject to Studio
+      </button>
     </div>
   </header>
 
@@ -361,11 +364,109 @@
       let projSlideIndex = 0;
       let currentZoom = parseInt(localStorage.getItem('openway_projector_zoom') || '18', 10);
       let demoOutput = '';
+      let injectedSteps = new Set(JSON.parse(localStorage.getItem('openway_injected_steps') || '[]'));
 
       const lessonSelect = document.getElementById('lessonSelect');
       const projectorBody = document.getElementById('projectorBody');
       const zoomDisplay = document.getElementById('zoomDisplay');
       const tabBtnMap = document.getElementById('tabBtnMap');
+      const btnInjectFullSolution = document.getElementById('btnInjectFullSolution');
+
+      function isStepInjected(lessonId, stepNum) {
+        return injectedSteps.has(`${lessonId}_step_${stepNum}`);
+      }
+
+      function toggleStepSolution(lessonId, stepNum) {
+        const lesson = LESSONS_DATA.find(l => l.id === lessonId);
+        if (!lesson) return false;
+        const guide = (typeof INSTRUCTOR_GUIDES !== 'undefined' && INSTRUCTOR_GUIDES[lessonId]) || lesson.instructorGuide;
+        if (!guide || !guide.steps) return false;
+        const step = guide.steps.find(s => s.num === stepNum);
+        if (!step || !step.inject) return false;
+
+        const targetFile = step.targetFile || (lesson.category === 'web' ? 'index.html' : 'main.py');
+        const filesStore = JSON.parse(localStorage.getItem('openway_files_v1') || '{}');
+        if (!filesStore[lessonId]) {
+          filesStore[lessonId] = { ...lesson.files };
+        }
+        let content = filesStore[lessonId][targetFile] || '';
+        const stepKey = `${lessonId}_step_${stepNum}`;
+        const isInjected = injectedSteps.has(stepKey);
+
+        if (isInjected) {
+          if (typeof step.inject.revert === 'string') {
+            if (content.includes(step.inject.replace)) {
+              content = content.replace(step.inject.replace, step.inject.revert);
+            } else if (step.inject.find instanceof RegExp && step.inject.find.test(content)) {
+              content = content.replace(step.inject.find, step.inject.revert);
+            }
+          }
+          injectedSteps.delete(stepKey);
+        } else {
+          if (step.inject.find instanceof RegExp) {
+            if (step.inject.find.test(content)) {
+              content = content.replace(step.inject.find, step.inject.replace);
+            }
+          } else if (typeof step.inject.find === 'string') {
+            if (content.includes(step.inject.find)) {
+              content = content.replace(step.inject.find, step.inject.replace);
+            }
+          }
+          injectedSteps.add(stepKey);
+        }
+
+        filesStore[lessonId][targetFile] = content;
+        localStorage.setItem('openway_files_v1', JSON.stringify(filesStore));
+        localStorage.setItem('openway_injected_steps', JSON.stringify([...injectedSteps]));
+
+        // Broadcast across windows (e.g. to student studio)
+        localStorage.setItem('openway_step_event', JSON.stringify({
+          lessonId,
+          stepNum,
+          targetFile,
+          action: isInjected ? 'revert' : 'inject',
+          timestamp: Date.now()
+        }));
+
+        render();
+        return !isInjected;
+      }
+
+      function injectFullSolution() {
+        const lesson = LESSONS_DATA.find(l => l.id === currentLessonId);
+        if (!lesson || !lesson.teacherSolution) return;
+        const targetFile = (lesson.category === 'web') ? 'index.html' : 'main.py';
+        const filesStore = JSON.parse(localStorage.getItem('openway_files_v1') || '{}');
+        if (!filesStore[lesson.id]) {
+          filesStore[lesson.id] = { ...lesson.files };
+        }
+        filesStore[lesson.id][targetFile] = lesson.teacherSolution;
+        localStorage.setItem('openway_files_v1', JSON.stringify(filesStore));
+        localStorage.setItem('openway_step_event', JSON.stringify({
+          lessonId: lesson.id,
+          action: 'inject_full',
+          targetFile,
+          timestamp: Date.now()
+        }));
+
+        if (btnInjectFullSolution) {
+          const origHtml = btnInjectFullSolution.innerHTML;
+          btnInjectFullSolution.innerHTML = '<span>✓</span> Injected!';
+          setTimeout(() => btnInjectFullSolution.innerHTML = origHtml, 1500);
+        }
+      }
+
+      if (btnInjectFullSolution) {
+        btnInjectFullSolution.addEventListener('click', injectFullSolution);
+      }
+
+      // Cross-window storage listener
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'openway_injected_steps' || e.key === 'openway_step_event') {
+          injectedSteps = new Set(JSON.parse(localStorage.getItem('openway_injected_steps') || '[]'));
+          render();
+        }
+      });
 
       // Populate lesson selector
       LESSONS_DATA.forEach(l => {
@@ -503,6 +604,9 @@
       function render() {
         setZoom(currentZoom);
         const lesson = LESSONS_DATA.find(l => l.id === currentLessonId);
+        if (btnInjectFullSolution) {
+          btnInjectFullSolution.style.display = (lesson && lesson.teacherSolution) ? 'inline-flex' : 'none';
+        }
         const guide = (typeof INSTRUCTOR_GUIDES !== 'undefined' && INSTRUCTOR_GUIDES[lesson.id]) || lesson.instructorGuide || {
           goal: lesson.summary,
           pacing: { hook: "10 mins", liveCoding: "25 mins", studentWork: "20 mins", debrief: "5 mins" },
@@ -523,6 +627,7 @@
           const steps = guide.steps || [];
           html += `<div class="step-container">`;
           steps.forEach(s => {
+            const isInjected = isStepInjected(lesson.id, s.num);
             html += `
               <div class="step-card">
                 <div class="step-header">
@@ -533,7 +638,19 @@
                   🗣️ <strong>Instructor Prompt:</strong> ${s.prompt}
                 </div>
                 <div class="step-code-box">
-                  <button class="btn-copy-step" data-step-code="${encodeURIComponent(s.code)}">📋 Copy Snippet</button>
+                  <div class="step-actions-bar">
+                    ${s.inject ? `
+                      <button class="btn-step-action ${isInjected ? 'btn-step-revert' : 'btn-step-inject'}"
+                              data-step-inject="${s.num}"
+                              title="${isInjected ? `Remove Step ${s.num} solution from student workspace` : `Inject Step ${s.num} solution into student workspace`}">
+                        <span>${isInjected ? '↩' : '📥'}</span>
+                        <span>${isInjected ? `Remove Step ${s.num}` : `Inject Step ${s.num}`}</span>
+                      </button>
+                    ` : ''}
+                    <button class="btn-step-action btn-copy-step" data-step-code="${encodeURIComponent(s.code)}" title="Copy code snippet">
+                      <span>📋</span> Copy Snippet
+                    </button>
+                  </div>
                   <pre class="step-code-pre"><code>${escapeHtml(s.code)}</code></pre>
                 </div>
                 <div class="step-checkpoint">
@@ -668,6 +785,16 @@
               btn.textContent = '✓ Copied!';
               setTimeout(() => btn.textContent = orig, 1500);
             });
+          });
+        });
+
+        // Wire step inject/revert buttons
+        projectorBody.querySelectorAll('[data-step-inject]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const stepNum = parseInt(btn.getAttribute('data-step-inject'), 10);
+            if (!isNaN(stepNum)) {
+              toggleStepSolution(currentLessonId, stepNum);
+            }
           });
         });
 
