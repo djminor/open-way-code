@@ -94,6 +94,14 @@ class CodingApp {
     this.bindEvents();
     this.renderSidebar();
 
+    // On mobile viewports, start with curriculum sidebar closed
+    if (window.innerWidth <= 768) {
+      if (this.sidebar) {
+        this.sidebar.classList.add('collapsed');
+      }
+      document.body.classList.remove('sidebar-open');
+    }
+
     let initialIndex = 0;
     const urlParams = new URLSearchParams(window.location.search);
     const paramLesson = parseInt(urlParams.get('lesson'), 10);
@@ -119,9 +127,12 @@ class CodingApp {
     // Navigation & Header
     this.sidebar = document.querySelector('.sidebar');
     this.toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    this.sidebarBackdrop = document.getElementById('sidebarBackdrop');
     this.sidebarList = document.getElementById('lessonsList');
     this.prevBtn = document.getElementById('prevLessonBtn');
     this.nextBtn = document.getElementById('nextLessonBtn');
+    this.mobilePrevBtn = document.getElementById('mobilePrevBtn');
+    this.mobileNextBtn = document.getElementById('mobileNextBtn');
     this.progressFill = document.getElementById('progressBarFill');
     this.progressText = document.getElementById('progressText');
     this.sidebarStats = document.getElementById('sidebarCompletedBadge');
@@ -191,10 +202,15 @@ class CodingApp {
   bindEvents() {
     if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.cycleLesson(-1));
     if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.cycleLesson(1));
+    if (this.mobilePrevBtn) this.mobilePrevBtn.addEventListener('click', () => this.cycleLesson(-1));
+    if (this.mobileNextBtn) this.mobileNextBtn.addEventListener('click', () => this.cycleLesson(1));
 
     // Drawer toggles
     if (this.toggleSidebarBtn) {
       this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
+    }
+    if (this.sidebarBackdrop) {
+      this.sidebarBackdrop.addEventListener('click', () => this.toggleSidebar(false));
     }
     if (this.collapseLessonBtn) {
       this.collapseLessonBtn.addEventListener('click', () => this.toggleLessonPane(false));
@@ -254,6 +270,14 @@ class CodingApp {
       }
       if (e.key === 'Escape') {
         this.toggleLokiModal(false);
+        this.toggleSidebar(false);
+      }
+    });
+
+    // Close mobile drawer if window resizes to desktop size
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && document.body.classList.contains('sidebar-open')) {
+        document.body.classList.remove('sidebar-open');
       }
     });
 
@@ -328,10 +352,27 @@ class CodingApp {
   }
 
   toggleSidebar(forceState) {
-    const isCollapsed = forceState !== undefined ? !forceState : !this.sidebar.classList.contains('collapsed');
-    this.sidebar.classList.toggle('collapsed', isCollapsed);
-    if (this.toggleSidebarBtn) {
-      this.toggleSidebarBtn.classList.toggle('active', !isCollapsed);
+    const isMobile = window.innerWidth <= 768;
+    const isCurrentlyOpen = isMobile
+      ? document.body.classList.contains('sidebar-open')
+      : !this.sidebar.classList.contains('collapsed');
+
+    const shouldOpen = forceState !== undefined ? forceState : !isCurrentlyOpen;
+
+    if (isMobile) {
+      document.body.classList.toggle('sidebar-open', shouldOpen);
+      this.sidebar.classList.toggle('open', shouldOpen);
+      this.sidebar.classList.toggle('collapsed', !shouldOpen);
+      if (this.toggleSidebarBtn) {
+        this.toggleSidebarBtn.classList.toggle('active', shouldOpen);
+      }
+    } else {
+      document.body.classList.remove('sidebar-open');
+      this.sidebar.classList.remove('open');
+      this.sidebar.classList.toggle('collapsed', !shouldOpen);
+      if (this.toggleSidebarBtn) {
+        this.toggleSidebarBtn.classList.toggle('active', shouldOpen);
+      }
     }
   }
 
@@ -431,6 +472,13 @@ class CodingApp {
     this.hideFeedback();
     this.prevBtn.disabled = index === 0;
     this.nextBtn.disabled = index === this.lessons.length - 1;
+    if (this.mobilePrevBtn) this.mobilePrevBtn.disabled = index === 0;
+    if (this.mobileNextBtn) this.mobileNextBtn.disabled = index === this.lessons.length - 1;
+
+    // On mobile, close sidebar smoothly after selecting a lesson
+    if (window.innerWidth <= 768) {
+      this.toggleSidebar(false);
+    }
 
     // Update Loki drawer if open
     this.renderLokiContent();

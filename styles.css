@@ -352,6 +352,42 @@ body.studio-page {
   color: var(--text-bright);
 }
 
+/* Burger Icon & Transitions */
+.btn-sidebar-burger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.burger-icon {
+  width: 18px;
+  height: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.burger-line {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, background-color 0.2s ease;
+  transform-origin: center;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.mobile-lesson-nav {
+  display: none;
+}
+
 .sidebar-header {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border-subtle);
@@ -2975,6 +3011,619 @@ body.playground-page {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+/* ==========================================================================
+   Mobile Versioning (< 768px)
+   Continuous vertical flow (Lesson View -> Studio Editor -> Terminal),
+   2/3 width Curriculum Drawer with smooth Burger-to-X transition,
+   and streamlined Instructor View.
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* 1. App Shell & Continuous Vertical Scroll */
+  body.studio-page {
+    height: auto !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent page scrolling when mobile curriculum drawer is open */
+  body.sidebar-open {
+    overflow: hidden !important;
+  }
+
+  /* Header */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 54px;
+    padding: 0 12px;
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    gap: 8px;
+    padding-left: 48px; /* Room for fixed burger button at top-left */
+    min-width: 0;
+  }
+
+  .btn-home-link,
+  .brand-tag {
+    display: none !important;
+  }
+
+  .brand-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .brand-title {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Compact Progress: Slim bar along the bottom of the sticky header */
+  .header-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: 0;
+    height: 3px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header-progress .progress-info {
+    display: none;
+  }
+
+  .header-progress .progress-bar-container {
+    width: 100%;
+  }
+
+  .header-progress .progress-bar-track {
+    height: 3px;
+    border-radius: 0;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .header-progress .progress-bar-fill {
+    border-radius: 0;
+  }
+
+  .header-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .header-actions a[href="playground.html"] {
+    display: none; /* Keep header clean on small viewports */
+  }
+
+  .btn-instructor-toggle {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+
+  /* 2. Top-Left Burger Menu Button & Smooth X Transition */
+  #toggleSidebarBtn.btn-sidebar-burger {
+    position: fixed !important;
+    top: 7px !important;
+    left: 10px !important;
+    z-index: 1100 !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 6px !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-subtle) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  #toggleSidebarBtn .burger-text {
+    display: none !important;
+  }
+
+  #toggleSidebarBtn .burger-icon {
+    width: 18px;
+    height: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  #toggleSidebarBtn .burger-line {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: var(--text-bright);
+    border-radius: 2px;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, background-color 0.25s ease;
+    transform-origin: center;
+  }
+
+  /* Prominent X button state exactly where burger menu was */
+  body.sidebar-open #toggleSidebarBtn.btn-sidebar-burger {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: rgba(239, 68, 68, 0.55) !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3) !important;
+  }
+
+  body.sidebar-open #toggleSidebarBtn .burger-line {
+    background-color: #f87171 !important;
+  }
+
+  body.sidebar-open #toggleSidebarBtn .burger-line.line-1 {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  body.sidebar-open #toggleSidebarBtn .burger-line.line-2 {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  body.sidebar-open #toggleSidebarBtn .burger-line.line-3 {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* 3. Curriculum Sidebar Drawer (Exact 2/3 of screen width) */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 66.666vw !important; /* Exactly 2/3 screen width */
+    min-width: 250px !important;
+    max-width: 80vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 1050 !important;
+    background-color: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border-subtle) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    opacity: 1 !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+    overflow: hidden !important;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0) !important;
+    box-shadow: 8px 0 36px rgba(0, 0, 0, 0.75) !important;
+  }
+
+  .sidebar-header {
+    height: 54px;
+    padding: 0 16px 0 62px; /* Leaves clear space for top-left X button */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-size: 12px;
+  }
+
+  .sidebar-stats {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
+
+  .lessons-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 10px;
+  }
+
+  .lesson-item {
+    padding: 10px 10px;
+    margin-bottom: 6px;
+  }
+
+  .lesson-title-text {
+    font-size: 12.5px;
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-panel);
+  }
+
+  .shortcuts-tip {
+    display: none; /* Keyboard shortcuts not applicable on mobile */
+  }
+
+  /* 4. Backdrop Scrim (Covers remaining 1/3 of screen) */
+  .sidebar-backdrop {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+    z-index: 1040 !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease !important;
+  }
+
+  body.sidebar-open .sidebar-backdrop {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* 5. Continuous Workspace Vertical Layout (Lesson View -> Studio Editor -> Terminal) */
+  .app-container {
+    display: block !important;
+    height: auto !important;
+    min-height: calc(100vh - 54px);
+    overflow: visible !important;
+  }
+
+  .workspace {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Section 1: Lesson View */
+  .lesson-pane {
+    display: block !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    border-right: none !important;
+    border-bottom: 2px solid var(--border-subtle) !important;
+    background-color: var(--bg-panel);
+  }
+
+  .lesson-pane-topbar {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .btn-collapse-pane,
+  .btn-expand-instructions {
+    display: none !important;
+  }
+
+  .lesson-content-wrapper {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 20px 16px 28px !important;
+  }
+
+  .lesson-header-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    margin-bottom: 8px;
+  }
+
+  .lesson-main-title {
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .lesson-subtitle {
+    font-size: 13.5px;
+    margin-bottom: 18px;
+  }
+
+  .mission-card {
+    padding: 16px;
+    margin: 20px 0;
+  }
+
+  .tip-box {
+    padding: 12px 14px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  /* Section 2: Studio Editor & Actions (Flows immediately below lesson) */
+  .studio-pane {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    flex: none !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    background-color: var(--bg-code);
+  }
+
+  /* Sticky Tabs & Action Controls Bar */
+  .tabs-bar {
+    position: sticky !important;
+    top: 54px !important; /* Docks cleanly below the sticky app-header */
+    z-index: 50 !important;
+    height: 48px;
+    padding: 0 10px;
+    background-color: var(--bg-tabs);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .file-tabs-container {
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  .tab-pill {
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+
+  .studio-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn-action {
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+
+  /* Editor Main Area */
+  .editor-main-area {
+    height: 380px !important;
+    min-height: 320px !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .editor-wrapper {
+    height: 100% !important;
+  }
+
+  /* Feedback Banner */
+  .feedback-banner {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  /* Terminal Pane */
+  .terminal-pane {
+    height: 240px !important;
+    min-height: 200px !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .terminal-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Mobile Lesson Navigation Bar (At bottom of page) */
+  .mobile-lesson-nav {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-header);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .mobile-lesson-nav .btn-cycle {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    justify-content: center;
+  }
+
+  /* Preview, Map, and AI Sandbox responsive heights */
+  .preview-wrapper,
+  .map-viewer-wrapper,
+  .ai-sandbox-wrapper {
+    height: 380px !important;
+    min-height: 320px !important;
+  }
+
+  /* 6. Streamlined Instructor Views on Mobile */
+  .loki-overlay, .instructor-overlay {
+    padding: 0 !important;
+  }
+
+  .instructor-stage {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+
+  .instructor-header {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .instructor-title-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .instructor-lesson-title {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .instructor-nav-tabs {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px;
+  }
+
+  .instructor-tab-btn {
+    padding: 5px 8px;
+    font-size: 11.5px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .instructor-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .instructor-controls .zoom-group {
+    font-size: 12px;
+  }
+
+  .btn-instructor-action {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .instructor-body {
+    padding: 12px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .instructor-goal-card {
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+
+  .goal-text {
+    font-size: 14px;
+  }
+
+  .step-card {
+    padding: 14px 12px;
+    margin-bottom: 14px;
+  }
+
+  .step-header {
+    margin-bottom: 10px;
+  }
+
+  .step-title-text {
+    font-size: 15px;
+  }
+
+  .step-actions-bar {
+    position: static !important;
+    margin-bottom: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn-step-action {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .step-code-pre {
+    font-size: 13.5px !important;
+    padding-top: 12px !important;
+  }
+
+  .step-checkpoint {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Standalone Projector Page (instructor.html) mobile streamlining */
+  .projector-nav {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .projector-nav > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .projector-stage-container {
+    padding: 12px 8px;
+  }
+
+  .projector-slide-card {
+    border-radius: 6px;
+  }
+
+  .projector-slide-header {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .projector-slide-controls {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .projector-slide-pills {
+    min-width: 0;
+  }
 }
 
 
