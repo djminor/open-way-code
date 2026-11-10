@@ -1014,7 +1014,45 @@ You can click any of the **quick chips** above, or type your question below!`);
     let formattedHtml = this.formatMarkdown(text);
     msg.innerHTML = formattedHtml;
 
-    // Attach code actions (Copy & Insert)
+    this.attachAiCodeActions(msg);
+
+    this.aiChatStream.appendChild(msg);
+    this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+  }
+
+  async streamAiMessage(role, text) {
+    if (!this.aiChatStream) return;
+
+    if (role === 'user') {
+      this.renderAiMessage(role, text);
+      return;
+    }
+
+    const msg = document.createElement('div');
+    msg.className = `ai-msg ${role}`;
+    this.aiChatStream.appendChild(msg);
+
+    // Split into tokens (words, code fences, whitespace)
+    const tokens = text.match(/```[\s\S]*?```|[^\s]+|\s+/g) || [text];
+    let accumulated = '';
+
+    for (let i = 0; i < tokens.length; i++) {
+      accumulated += tokens[i];
+      msg.innerHTML = this.formatMarkdown(accumulated) + '<span class="streaming-cursor">▋</span>';
+      this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+
+      // Faster cadence inside code fences (6ms), natural cadence for text (14-28ms)
+      const isCodeFence = tokens[i].startsWith('```');
+      const delay = isCodeFence ? 6 : Math.min(28, Math.max(12, Math.floor(Math.random() * 16) + 12));
+      await new Promise(r => setTimeout(r, delay));
+    }
+
+    msg.innerHTML = this.formatMarkdown(text);
+    this.attachAiCodeActions(msg);
+    this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+  }
+
+  attachAiCodeActions(msg) {
     const codeBlocks = msg.querySelectorAll('pre code');
     codeBlocks.forEach(codeEl => {
       const rawCode = codeEl.textContent;
@@ -1042,9 +1080,6 @@ You can click any of the **quick chips** above, or type your question below!`);
       actionsDiv.appendChild(insertBtn);
       codeEl.parentElement.appendChild(actionsDiv);
     });
-
-    this.aiChatStream.appendChild(msg);
-    this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
   }
 
   insertCodeIntoEditor(code) {
@@ -1140,7 +1175,7 @@ You can click any of the **quick chips** above, or type your question below!`);
     const thinkingMsg = document.createElement('div');
     thinkingMsg.className = 'ai-msg assistant';
     thinkingMsg.id = thinkingId;
-    thinkingMsg.innerHTML = `<em>Thinking... 🤖</em>`;
+    thinkingMsg.innerHTML = `<span class="ai-thinking-pill"><span>OpenWay Co-Pilot is thinking</span> <span class="ai-thinking-dots"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span></span></span>`;
     this.aiChatStream.appendChild(thinkingMsg);
     this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
 
@@ -1151,15 +1186,17 @@ You can click any of the **quick chips** above, or type your question below!`);
       if (this.geminiApiKey) {
         replyText = await this.callGeminiApi(userPrompt, currentCode, lastError);
       } else {
+        // Brief simulated thinking pause (300ms) for natural conversational feel
+        await new Promise(r => setTimeout(r, 300));
         // Built-in offline intelligent educational tutor
         replyText = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
       }
 
-      // Remove thinking element and render response
+      // Remove thinking element and stream response
       const thinkingEl = document.getElementById(thinkingId);
       if (thinkingEl) thinkingEl.remove();
 
-      this.renderAiMessage('assistant', replyText);
+      await this.streamAiMessage('assistant', replyText);
     } catch (err) {
       console.error("AI Generation error:", err);
       const thinkingEl = document.getElementById(thinkingId);
@@ -1167,7 +1204,7 @@ You can click any of the **quick chips** above, or type your question below!`);
 
       // Graceful fallback to offline tutor
       const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
-      this.renderAiMessage('assistant', `*(Gemini API request note: ${err.message || 'Connecting to offline mentor mode'})*\n\n` + fallback);
+      await this.streamAiMessage('assistant', `*(Gemini API request note: ${err.message || 'Connecting to offline mentor mode'})*\n\n` + fallback);
     }
   }
 

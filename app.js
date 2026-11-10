@@ -1276,19 +1276,46 @@ class CodingApp {
   }
 
   // --------------------------------------------------------------------------
-  // AI Guest Assistant Simulator (Lesson 7)
+  // AI Guest Assistant Simulator (Lesson 7) - Real-Time Streaming Educational Tutor
   // --------------------------------------------------------------------------
-  handleAiChatSubmit() {
+  async handleAiChatSubmit() {
     const text = this.aiChatInput.value.trim();
-    if (!text) return;
+    if (!text || this.isAiStreaming) return;
 
     this.addAiChatMessage(text, 'user');
     this.aiChatInput.value = '';
+    this.aiChatInput.disabled = true;
+    if (this.aiChatSendBtn) this.aiChatSendBtn.disabled = true;
 
-    setTimeout(() => {
-      const response = this.generateAiResponse(text);
-      this.addAiChatMessage(response, 'assistant');
-    }, 600);
+    // Show simulated thinking bubble
+    const thinkingBubble = document.createElement('div');
+    thinkingBubble.className = 'ai-bubble assistant';
+    thinkingBubble.innerHTML = `
+      <span class="ai-thinking-pill">
+        <span>AI Co-Pilot is thinking</span>
+        <span class="ai-thinking-dots">
+          <span class="ai-thinking-dot"></span>
+          <span class="ai-thinking-dot"></span>
+          <span class="ai-thinking-dot"></span>
+        </span>
+      </span>`;
+    this.aiChatBody.appendChild(thinkingBubble);
+    this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+
+    // Brief simulated thinking cadence (400ms)
+    await new Promise(r => setTimeout(r, 400));
+    thinkingBubble.remove();
+
+    // Generate smart context-aware pedagogical response
+    const currentCode = this.filesStore[7]?.['main.py'] || '';
+    const responseText = this.generateAiResponse(text, currentCode);
+
+    // Stream response in real-time token-by-token
+    await this.streamAiChatMessage(responseText, 'assistant');
+
+    this.aiChatInput.disabled = false;
+    if (this.aiChatSendBtn) this.aiChatSendBtn.disabled = false;
+    this.aiChatInput.focus();
   }
 
   addAiChatMessage(content, sender) {
@@ -1299,27 +1326,119 @@ class CodingApp {
     this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
   }
 
-  generateAiResponse(prompt) {
+  async streamAiChatMessage(fullText, sender) {
+    this.isAiStreaming = true;
+    const bubble = document.createElement('div');
+    bubble.className = `ai-bubble ${sender}`;
+    this.aiChatBody.appendChild(bubble);
+
+    // Tokenize into words, whitespace, and complete HTML tags
+    const tokens = fullText.match(/<[^>]+>|[^\s<]+|\s+/g) || [fullText];
+    let accumulated = '';
+
+    for (let i = 0; i < tokens.length; i++) {
+      accumulated += tokens[i];
+      bubble.innerHTML = accumulated + '<span class="streaming-cursor">▋</span>';
+      this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+
+      // Jitter delay between tokens for natural streaming cadence (12ms - 28ms)
+      if (!tokens[i].startsWith('<')) {
+        const delay = Math.min(28, Math.max(12, Math.floor(Math.random() * 16) + 12));
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+
+    // Finalize without cursor
+    bubble.innerHTML = accumulated;
+    this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+    this.isAiStreaming = false;
+  }
+
+  generateAiResponse(prompt, currentCode = '') {
     const p = prompt.toLowerCase();
-    if (p.includes('palindrome')) {
-      return `Here is a clean Python function for a palindrome checker with test cases:<br><br>
-<code style="background:#070a0f; padding:6px; display:block; border-radius:4px; font-family:var(--font-mono);">
-def is_palindrome(s):<br>
-&nbsp;&nbsp;&nbsp;&nbsp;clean = ''.join(c.lower() for c in s if c.isalnum())<br>
-&nbsp;&nbsp;&nbsp;&nbsp;return clean == clean[::-1]<br>
-<br>
-print(is_palindrome("racecar")) # True<br>
-print(is_palindrome("hello"))   # False
-</code><br>
-👉 <em>Co-pilot tip: Notice how filtering non-alphanumeric characters protects against punctuation bugs!</em>`;
+    const cleanCode = (currentCode || '').replace(/\s+/g, ' ');
+
+    // 1. Code Review & Verification Intent
+    if (p.includes('review') || p.includes('check my code') || p.includes('look at my code') || p.includes('does this pass') || p.includes('is this right') || p.includes('is it correct')) {
+      if (cleanCode.includes('clean = text.replace') || (cleanCode.includes('.replace(" ", "")') && cleanCode.includes('.lower()'))) {
+        return `🎉 <strong>Code Review: Excellent work!</strong><br><br>
+Your implementation properly normalizes the input:
+1. Strips space characters with <code>.replace(" ", "")</code>.
+2. Converts characters to lowercase with <code>.lower()</code>.
+3. Tests against the reverse slice <code>clean == clean[::-1]</code>.<br><br>
+Click <strong>Run ❯</strong> and <strong>✓ Check Answer</strong>—all 5 automated test cases will pass!`;
+      }
+
+      if (cleanCode.includes('.lower()') && !cleanCode.includes('.replace(')) {
+        return `🔍 <strong>Code Review: You're halfway there!</strong><br><br>
+You handled casing with <code>.lower()</code>, which fixes <code>"Racecar"</code>.
+However, phrases with spaces like <code>"A man a plan a canal Panama"</code> will still fail!<br><br>
+💡 <strong>Hint:</strong> Clean both spaces and lowercase before checking:<br>
+<code style="background:#070a0f; padding:6px 10px; display:block; border-radius:4px; font-family:var(--font-mono); margin:8px 0;">
+clean = text.replace(" ", "").lower()<br>
+return clean == clean[::-1]
+</code>`;
+      }
+
+      if (cleanCode.includes('return text == text[::-1]')) {
+        return `⚠️ <strong>Code Review: Naive AI Flaw Detected!</strong><br><br>
+Your function currently uses <code>return text == text[::-1]</code>.<br>
+Notice that this naive check fails on:
+- <code>"Racecar"</code> (capital 'R' does not match lowercase 'r')
+- <code>"A man a plan a canal Panama"</code> (spaces mismatch during reverse!)<br><br>
+💡 <strong>Co-Pilot Tip:</strong> You must preprocess the text before reversing it: convert to lowercase and remove spaces!`;
+      }
+
+      return `🔍 <strong>Code Review:</strong> Make sure your <code>is_palindrome(text)</code> function returns a boolean (<code>True</code> or <code>False</code>). Test it against words with spaces and mixed capitalization!`;
     }
-    if (p.includes('reverse') || p.includes('string')) {
-      return `In Python, you can reverse a string using slicing: <code>text[::-1]</code> or <code>"".join(reversed(text))</code>!`;
+
+    // 2. Slicing syntax question
+    if (p.includes('::-1') || p.includes('slice') || p.includes('bracket') || p.includes('colon')) {
+      return `💡 <strong>Python Slice Notation: <code>text[::-1]</code></strong><br><br>
+In Python, strings can be indexed with <code>[start:stop:step]</code>:
+- <code>start</code>: beginning index (defaults to 0)
+- <code>stop</code>: ending index
+- <code>step</code>: step direction and size<br><br>
+When you specify <code>[::-1]</code>, you tell Python to step backwards by 1, which cleanly reverses the entire string in a single operation!`;
     }
-    if (p.includes('bug') || p.includes('error')) {
-      return `To debug effectively:<br>1. Read the last line of the traceback for the exact error type.<br>2. Check variable values right before the crash using print().<br>3. Verify that types match!`;
+
+    // 3. What is a palindrome / examples
+    if (p.includes('palindrome') || p.includes('what is a palindrome') || p.includes('example')) {
+      return `📖 <strong>What is a Palindrome?</strong><br><br>
+A palindrome is a word, phrase, or sequence that reads the exact same forwards and backwards when spacing and punctuation are ignored.<br><br>
+<strong>Classic Examples:</strong>
+- Single words: <em>racecar</em>, <em>kayak</em>, <em>radar</em>, <em>level</em>
+- Sentences: <em>"A man a plan a canal Panama"</em>
+- Numbers: <em>12321</em>, <em>9009</em>`;
     }
-    return `Great prompt! As an AI pair-programmer, I recommend decomposing this: what are the expected inputs, outputs, and edge cases (like empty lists or zeros)? Try testing the candidate function in your editor!`;
+
+    // 4. Test cases & Verification
+    if (p.includes('test') || p.includes('suite') || p.includes('edge case')) {
+      return `🧪 <strong>Automated Verification & Edge Cases:</strong><br><br>
+When testing string functions, always consider:
+1. <strong>Casing:</strong> <code>"Racecar"</code> $\to$ should return <code>True</code>
+2. <strong>Spaces:</strong> <code>"taco cat"</code> $\to$ should return <code>True</code>
+3. <strong>Single letters:</strong> <code>"a"</code> $\to$ should return <code>True</code>
+4. <strong>Empty strings:</strong> <code>""</code> $\to$ should return <code>True</code>
+5. <strong>Non-palindromes:</strong> <code>"hello"</code> $\to$ should return <code>False</code>`;
+    }
+
+    // 5. General debugging or hints
+    if (p.includes('hint') || p.includes('stuck') || p.includes('help') || p.includes('fix') || p.includes('how to')) {
+      return `💡 <strong>2-Step Fix Strategy for Lesson 7:</strong><br><br>
+1. <strong>Clean the input text:</strong>
+<code style="background:#070a0f; padding:6px 10px; display:block; border-radius:4px; font-family:var(--font-mono); margin:6px 0;">
+clean = text.replace(" ", "").lower()
+</code>
+2. <strong>Compare the clean string to its reverse:</strong>
+<code style="background:#070a0f; padding:6px 10px; display:block; border-radius:4px; font-family:var(--font-mono); margin:6px 0;">
+return clean == clean[::-1]
+</code>
+Try typing this into your editor, then click <strong>Run ❯</strong>!`;
+    }
+
+    // Default friendly assistant
+    return `Great observation! In Lesson 7, our goal is to practice <strong>Critical Code Review</strong> of AI-generated solutions. Even when AI produces convincing code, real programmers verify edge cases like whitespace, capitalization, and empty inputs. Try asking: <em>"Can you review my code?"</em> or <em>"Explain [::-1]"</em>!`;
   }
 
   escapeHtml(str) {
