@@ -187,6 +187,12 @@ class CodingApp {
     this.aiChatBody = document.getElementById('aiChatBody');
     this.aiChatInput = document.getElementById('aiChatInput');
     this.aiChatSendBtn = document.getElementById('aiChatSendBtn');
+    this.studioAiModeBtn = document.getElementById('studioAiModeBtn');
+    this.studioAiMode = (typeof navigator !== 'undefined' && navigator.gpu) ? 'qwen' : 'offline';
+    this.webLlmEngine = null;
+    this.isWebLlmLoading = false;
+    this.webLlmModelId = 'Qwen2.5-Coder-0.5B-Instruct-q4f16_1-MLC';
+    this.updateStudioAiModeBtn();
 
     // Middle Earth Map Slideshow Elements
     this.mapSlideIndex = 0;
@@ -336,7 +342,10 @@ class CodingApp {
       if (e.key === ']' || (e.ctrlKey && e.key === 'ArrowRight')) this.cycleLesson(1);
     });
 
-    // AI Chat Input
+    // AI Chat Input & Mode Toggle
+    if (this.studioAiModeBtn) {
+      this.studioAiModeBtn.addEventListener('click', () => this.toggleStudioAiMode());
+    }
     if (this.aiChatSendBtn && this.aiChatInput) {
       this.aiChatSendBtn.addEventListener('click', () => this.handleAiChatSubmit());
       this.aiChatInput.addEventListener('keydown', (e) => {
@@ -1276,8 +1285,66 @@ class CodingApp {
   }
 
   // --------------------------------------------------------------------------
-  // AI Guest Assistant Simulator (Lesson 7) - Real-Time Streaming Educational Tutor
+  // AI Guest Assistant Simulator (Lesson 7) - Real-Time Streaming Educational Tutor & WebLLM
   // --------------------------------------------------------------------------
+  toggleStudioAiMode() {
+    if (this.studioAiMode === 'qwen') {
+      this.studioAiMode = 'offline';
+    } else {
+      if (typeof navigator === 'undefined' || !navigator.gpu) {
+        alert("⚠️ WebGPU is not supported or enabled on this browser/device. Studio will continue using the offline educational tutor!");
+        this.studioAiMode = 'offline';
+      } else {
+        this.studioAiMode = 'qwen';
+      }
+    }
+    this.updateStudioAiModeBtn();
+  }
+
+  updateStudioAiModeBtn() {
+    if (!this.studioAiModeBtn) return;
+    if (this.studioAiMode === 'qwen') {
+      this.studioAiModeBtn.textContent = '🤖 Qwen 0.5B (Local)';
+      this.studioAiModeBtn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+      this.studioAiModeBtn.style.color = '#38bdf8';
+    } else {
+      this.studioAiModeBtn.textContent = 'Offline Tutor';
+      this.studioAiModeBtn.style.borderColor = 'rgba(168, 85, 247, 0.35)';
+      this.studioAiModeBtn.style.color = '#c084fc';
+    }
+  }
+
+  async initWebLlmEngine(onProgress) {
+    if (this.webLlmEngine) return this.webLlmEngine;
+    if (this.isWebLlmLoading) {
+      while (this.isWebLlmLoading) {
+        await new Promise(r => setTimeout(r, 200));
+      }
+      return this.webLlmEngine;
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.gpu) {
+      throw new Error("WebGPU is not supported or enabled on this browser/device.");
+    }
+
+    this.isWebLlmLoading = true;
+    try {
+      const webllm = await import('https://esm.run/@mlc-ai/web-llm');
+      const engine = await webllm.CreateMLCEngine(
+        this.webLlmModelId,
+        {
+          initProgressCallback: (report) => {
+            if (onProgress) onProgress(report);
+          }
+        }
+      );
+      this.webLlmEngine = engine;
+      return engine;
+    } finally {
+      this.isWebLlmLoading = false;
+    }
+  }
+
   async handleAiChatSubmit() {
     const text = this.aiChatInput.value.trim();
     if (!text || this.isAiStreaming) return;
@@ -1287,7 +1354,104 @@ class CodingApp {
     this.aiChatInput.disabled = true;
     if (this.aiChatSendBtn) this.aiChatSendBtn.disabled = true;
 
-    // Show simulated thinking bubble
+    const currentCode = this.filesStore[7]?.['main.py'] || '';
+
+    // If Qwen mode is active
+    if (this.studioAiMode === 'qwen') {
+      const hasWebGpu = typeof navigator !== 'undefined' && !!navigator.gpu;
+      if (!hasWebGpu) {
+        this.studioAiMode = 'offline';
+        this.updateStudioAiModeBtn();
+      } else {
+        let progressBubble = null;
+        if (!this.webLlmEngine) {
+          progressBubble = document.createElement('div');
+          progressBubble.className = 'ai-bubble assistant';
+          progressBubble.innerHTML = `
+            <div style="font-size: 12.5px; font-weight: 600; margin-bottom: 4px; color: #38bdf8;">
+              📦 Loading in-browser Qwen2.5-Coder-0.5B (~300MB)...
+            </div>
+            <div class="model-progress-container" style="margin: 4px 0 0 0; background: #070a0f;">
+              <div class="model-progress-header">
+                <span id="studioProgressLabel">Initializing WebGPU...</span>
+                <span id="studioProgressPct">0%</span>
+              </div>
+              <div class="model-progress-track">
+                <div id="studioProgressFill" class="model-progress-fill" style="width: 0%"></div>
+              </div>
+            </div>`;
+          this.aiChatBody.appendChild(progressBubble);
+          this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+        }
+
+        try {
+          if (!this.webLlmEngine) {
+            const pctEl = progressBubble.querySelector('#studioProgressPct');
+            const fillEl = progressBubble.querySelector('#studioProgressFill');
+            const labelEl = progressBubble.querySelector('#studioProgressLabel');
+
+            await this.initWebLlmEngine((report) => {
+              const pct = Math.round((report.progress || 0) * 100);
+              if (pctEl) pctEl.textContent = `${pct}%`;
+              if (fillEl) fillEl.style.width = `${pct}%`;
+              if (labelEl && report.text) labelEl.textContent = report.text;
+              this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+            });
+
+            if (progressBubble) progressBubble.remove();
+          }
+
+          // Live stream Qwen completion
+          this.isAiStreaming = true;
+          const bubble = document.createElement('div');
+          bubble.className = 'ai-bubble assistant';
+          bubble.innerHTML = '<span class="streaming-cursor">▋</span>';
+          this.aiChatBody.appendChild(bubble);
+          this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+
+          const systemPrompt = `You are an encouraging AI coding co-pilot in Lesson 7 of a middle/high school computer science class.
+The lesson objective is practicing "Critical Code Review of AI-generated solutions".
+When asked for a palindrome function, explain the logic simply and provide clean Python code in markdown blocks.
+Always encourage students to test edge cases like whitespace and capitalization.`;
+
+          const userPrompt = `Current editor code:\n\`\`\`python\n${currentCode}\n\`\`\`\n\nStudent prompt: ${text}`;
+
+          const chunks = await this.webLlmEngine.chat.completions.create({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            temperature: 0.6,
+            max_tokens: 600,
+            stream: true
+          });
+
+          let accumulated = '';
+          for await (const chunk of chunks) {
+            const delta = chunk.choices[0]?.delta?.content || '';
+            accumulated += delta;
+            bubble.innerHTML = accumulated.replace(/\n/g, '<br>') + '<span class="streaming-cursor">▋</span>';
+            this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
+          }
+
+          bubble.innerHTML = accumulated.replace(/\n/g, '<br>');
+          this.isAiStreaming = false;
+
+          this.aiChatInput.disabled = false;
+          if (this.aiChatSendBtn) this.aiChatSendBtn.disabled = false;
+          this.aiChatInput.focus();
+          return;
+
+        } catch (err) {
+          console.error("Studio WebLLM error:", err);
+          if (progressBubble) progressBubble.remove();
+          this.studioAiMode = 'offline';
+          this.updateStudioAiModeBtn();
+        }
+      }
+    }
+
+    // Default/fallback: Built-in Offline Educational Tutor
     const thinkingBubble = document.createElement('div');
     thinkingBubble.className = 'ai-bubble assistant';
     thinkingBubble.innerHTML = `
@@ -1302,12 +1466,11 @@ class CodingApp {
     this.aiChatBody.appendChild(thinkingBubble);
     this.aiChatBody.scrollTop = this.aiChatBody.scrollHeight;
 
-    // Brief simulated thinking cadence (400ms)
-    await new Promise(r => setTimeout(r, 400));
+    // Brief simulated thinking pause (350ms)
+    await new Promise(r => setTimeout(r, 350));
     thinkingBubble.remove();
 
     // Generate smart context-aware pedagogical response
-    const currentCode = this.filesStore[7]?.['main.py'] || '';
     const responseText = this.generateAiResponse(text, currentCode);
 
     // Stream response in real-time token-by-token

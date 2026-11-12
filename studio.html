@@ -203,8 +203,15 @@
           <!-- 4. AI Guest Assistant Sandbox (Lesson 7) -->
           <div id="aiSandboxWrapper" class="ai-sandbox-wrapper" style="display: none;">
             <div class="ai-chat-header">
-              <span>🤖</span>
-              <span>AI Coding Partner Sandbox (Guest Session)</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>🤖</span>
+                <span>AI Coding Partner Sandbox</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" id="studioAiModeBtn" class="ai-status-tag" style="background: none; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer; padding: 2px 8px; font-size: 11px;" title="Click to toggle between In-Browser Qwen 0.5B and Offline Tutor">
+                  🤖 Qwen 0.5B (Local)
+                </button>
+              </div>
             </div>
             <div id="aiChatBody" class="ai-chat-body">
               <div class="ai-bubble assistant">

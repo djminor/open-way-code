@@ -11,6 +11,7 @@ class PlaygroundApp {
     this.storageKeyTitle = 'openway_playground_title_v2';
     this.storageKeyApiKey = 'openway_gemini_api_key';
     this.storageKeyModel = 'openway_gemini_model';
+    this.storageKeyAiProvider = 'openway_ai_provider';
     this.storageKeyLayout = 'openway_playground_layout';
     this.storageKeyAiHistory = 'openway_playground_ai_chat_v1';
 
@@ -25,9 +26,24 @@ class PlaygroundApp {
     this.layoutMode = localStorage.getItem(this.storageKeyLayout) || 'side-by-side';
     this.currentOutputTab = 'terminal'; // 'terminal' | 'preview'
     this.isAiOpen = true;
+
+    // AI Provider: 'webllm-qwen' | 'offline-tutor' | 'gemini'
+    // Default to in-browser Qwen 0.5B if WebGPU is available, else offline tutor
+    const savedProvider = localStorage.getItem(this.storageKeyAiProvider);
+    if (savedProvider) {
+      this.aiProvider = savedProvider;
+    } else {
+      this.aiProvider = (typeof navigator !== 'undefined' && navigator.gpu) ? 'webllm-qwen' : 'offline-tutor';
+    }
+
     this.geminiApiKey = localStorage.getItem(this.storageKeyApiKey) || '';
     this.geminiModel = localStorage.getItem(this.storageKeyModel) || 'gemini-2.0-flash';
     this.theme = localStorage.getItem('openway_theme') || 'dark';
+
+    // WebLLM Engine state (In-browser Qwen2.5-Coder-0.5B)
+    this.webLlmEngine = null;
+    this.isWebLlmLoading = false;
+    this.webLlmModelId = 'Qwen2.5-Coder-0.5B-Instruct-q4f16_1-MLC';
 
     this.lastOutputBuffer = '';
     this.lastErrorBuffer = '';
@@ -355,6 +371,17 @@ print("Primes below 50:", primes_under_50)
 
     // AI Settings Modal
     this.aiSettingsModal = document.getElementById('aiSettingsModal');
+    this.aiProviderSelect = document.getElementById('aiProviderSelect');
+    this.webllmConfigSection = document.getElementById('webllmConfigSection');
+    this.geminiConfigSection = document.getElementById('geminiConfigSection');
+    this.offlineTutorConfigSection = document.getElementById('offlineTutorConfigSection');
+    this.webgpuStatusBadge = document.getElementById('webgpuStatusBadge');
+    this.btnPreloadWebLlm = document.getElementById('btnPreloadWebLlm');
+    this.webllmProgressContainer = document.getElementById('webllmProgressContainer');
+    this.webllmProgressLabel = document.getElementById('webllmProgressLabel');
+    this.webllmProgressPercent = document.getElementById('webllmProgressPercent');
+    this.webllmProgressFill = document.getElementById('webllmProgressFill');
+    this.webllmProgressDetail = document.getElementById('webllmProgressDetail');
     this.geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
     this.geminiModelSelect = document.getElementById('geminiModelSelect');
     this.btnSaveAiSettings = document.getElementById('btnSaveAiSettings');
@@ -362,8 +389,11 @@ print("Primes below 50:", primes_under_50)
 
     // Set initial values
     if (this.projectTitleInput) this.projectTitleInput.value = this.projectTitle;
+    if (this.aiProviderSelect) this.aiProviderSelect.value = this.aiProvider;
     if (this.geminiApiKeyInput) this.geminiApiKeyInput.value = this.geminiApiKey;
     if (this.geminiModelSelect) this.geminiModelSelect.value = this.geminiModel;
+    this.checkWebGpuSupport();
+    this.updateAiProviderSections();
     this.updateAiStatusTag();
   }
 
@@ -500,6 +530,12 @@ print("Primes below 50:", primes_under_50)
       this.aiSettingsModal.addEventListener('click', (e) => {
         if (e.target === this.aiSettingsModal) this.toggleAiSettingsModal(false);
       });
+    }
+    if (this.aiProviderSelect) {
+      this.aiProviderSelect.addEventListener('change', () => this.updateAiProviderSections());
+    }
+    if (this.btnPreloadWebLlm) {
+      this.btnPreloadWebLlm.addEventListener('click', () => this.preloadWebLlmModel());
     }
     if (this.btnSaveAiSettings) this.btnSaveAiSettings.addEventListener('click', () => this.saveAiSettings());
 
@@ -968,10 +1004,51 @@ You can click any of the **quick chips** above, or type your question below!`);
     }
   }
 
+  checkWebGpuSupport() {
+    const hasWebGpu = typeof navigator !== 'undefined' && !!navigator.gpu;
+    if (this.webgpuStatusBadge) {
+      if (hasWebGpu) {
+        this.webgpuStatusBadge.textContent = '🟢 WebGPU Supported';
+        this.webgpuStatusBadge.className = 'ai-badge-status supported';
+      } else {
+        this.webgpuStatusBadge.textContent = '⚠️ WebGPU Not Detected';
+        this.webgpuStatusBadge.className = 'ai-badge-status unsupported';
+      }
+    }
+    return hasWebGpu;
+  }
+
+  updateAiProviderSections() {
+    const provider = this.aiProviderSelect ? this.aiProviderSelect.value : this.aiProvider;
+    if (this.webllmConfigSection) {
+      this.webllmConfigSection.style.display = provider === 'webllm-qwen' ? 'block' : 'none';
+    }
+    if (this.geminiConfigSection) {
+      this.geminiConfigSection.style.display = provider === 'gemini' ? 'block' : 'none';
+    }
+    if (this.offlineTutorConfigSection) {
+      this.offlineTutorConfigSection.style.display = provider === 'offline-tutor' ? 'block' : 'none';
+    }
+  }
+
   updateAiStatusTag() {
     if (!this.aiStatusTag) return;
-    if (this.geminiApiKey) {
-      this.aiStatusTag.textContent = 'Gemini 2.0 Live';
+    if (this.aiProvider === 'webllm-qwen') {
+      if (this.isWebLlmLoading) {
+        this.aiStatusTag.textContent = '⏳ Loading Qwen...';
+        this.aiStatusTag.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+        this.aiStatusTag.style.color = '#38bdf8';
+      } else if (this.webLlmEngine) {
+        this.aiStatusTag.textContent = '🤖 Qwen 0.5B (Ready)';
+        this.aiStatusTag.style.borderColor = '#10b981';
+        this.aiStatusTag.style.color = '#34d399';
+      } else {
+        this.aiStatusTag.textContent = 'Qwen 0.5B (Local)';
+        this.aiStatusTag.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+        this.aiStatusTag.style.color = '#38bdf8';
+      }
+    } else if (this.aiProvider === 'gemini') {
+      this.aiStatusTag.textContent = this.geminiApiKey ? 'Gemini 2.0 Live' : 'Gemini (No Key)';
       this.aiStatusTag.style.borderColor = '#10b981';
       this.aiStatusTag.style.color = '#34d399';
     } else {
@@ -985,12 +1062,19 @@ You can click any of the **quick chips** above, or type your question below!`);
     if (!this.aiSettingsModal) return;
     this.aiSettingsModal.classList.toggle('open', open);
     if (open) {
+      if (this.aiProviderSelect) this.aiProviderSelect.value = this.aiProvider;
       if (this.geminiApiKeyInput) this.geminiApiKeyInput.value = this.geminiApiKey;
       if (this.geminiModelSelect) this.geminiModelSelect.value = this.geminiModel;
+      this.checkWebGpuSupport();
+      this.updateAiProviderSections();
     }
   }
 
   saveAiSettings() {
+    if (this.aiProviderSelect) {
+      this.aiProvider = this.aiProviderSelect.value;
+      localStorage.setItem(this.storageKeyAiProvider, this.aiProvider);
+    }
     if (this.geminiApiKeyInput) {
       this.geminiApiKey = this.geminiApiKeyInput.value.trim();
       localStorage.setItem(this.storageKeyApiKey, this.geminiApiKey);
@@ -1001,7 +1085,96 @@ You can click any of the **quick chips** above, or type your question below!`);
     }
     this.updateAiStatusTag();
     this.toggleAiSettingsModal(false);
-    this.renderAiMessage('assistant', `⚙️ AI settings updated! Current mode: **${this.geminiApiKey ? 'Gemini Live (' + this.geminiModel + ')' : 'Built-in Offline Educational Tutor'}**.`);
+
+    let modeName = 'Built-in Offline Educational Tutor';
+    if (this.aiProvider === 'webllm-qwen') {
+      modeName = 'In-Browser Local LLM (Qwen2.5-Coder 0.5B via WebGPU)';
+    } else if (this.aiProvider === 'gemini') {
+      modeName = `Gemini Live (${this.geminiModel})`;
+    }
+    this.renderAiMessage('assistant', `⚙️ AI settings updated! Current mode: **${modeName}**.`);
+  }
+
+  async initWebLlmEngine(onProgress) {
+    if (this.webLlmEngine) return this.webLlmEngine;
+    if (this.isWebLlmLoading) {
+      while (this.isWebLlmLoading) {
+        await new Promise(r => setTimeout(r, 200));
+      }
+      return this.webLlmEngine;
+    }
+
+    if (typeof navigator === 'undefined' || !navigator.gpu) {
+      throw new Error("WebGPU is not supported or enabled on this browser/device.");
+    }
+
+    this.isWebLlmLoading = true;
+    this.updateAiStatusTag();
+
+    try {
+      const webllm = await import('https://esm.run/@mlc-ai/web-llm');
+      const engine = await webllm.CreateMLCEngine(
+        this.webLlmModelId,
+        {
+          initProgressCallback: (report) => {
+            if (onProgress) onProgress(report);
+          }
+        }
+      );
+      this.webLlmEngine = engine;
+      return engine;
+    } finally {
+      this.isWebLlmLoading = false;
+      this.updateAiStatusTag();
+    }
+  }
+
+  async preloadWebLlmModel() {
+    if (!this.checkWebGpuSupport()) {
+      alert("⚠️ WebGPU is not supported or enabled on this browser. OpenWay Code will use the built-in offline educational tutor instead.");
+      return;
+    }
+
+    if (this.webLlmEngine) {
+      alert("✨ Qwen2.5-Coder-0.5B is already loaded and ready in browser memory!");
+      return;
+    }
+
+    if (this.btnPreloadWebLlm) {
+      this.btnPreloadWebLlm.disabled = true;
+      this.btnPreloadWebLlm.textContent = "⏳ Initializing WebGPU & downloading weights...";
+    }
+    if (this.webllmProgressContainer) {
+      this.webllmProgressContainer.style.display = 'block';
+    }
+
+    try {
+      await this.initWebLlmEngine((report) => {
+        const pct = Math.round((report.progress || 0) * 100);
+        if (this.webllmProgressPercent) this.webllmProgressPercent.textContent = `${pct}%`;
+        if (this.webllmProgressFill) this.webllmProgressFill.style.width = `${pct}%`;
+        if (this.webllmProgressLabel) this.webllmProgressLabel.textContent = report.text || 'Downloading model weights...';
+        if (this.webllmProgressDetail) {
+          this.webllmProgressDetail.textContent = report.text ? report.text : `Downloaded ${pct}% (~300MB total)`;
+        }
+      });
+
+      if (this.btnPreloadWebLlm) {
+        this.btnPreloadWebLlm.textContent = "✓ Qwen2.5-Coder Model Cached & Ready!";
+        this.btnPreloadWebLlm.style.borderColor = "#10b981";
+        this.btnPreloadWebLlm.style.color = "#34d399";
+      }
+      this.updateAiStatusTag();
+    } catch (err) {
+      console.error("WebLLM preloading error:", err);
+      if (this.btnPreloadWebLlm) {
+        this.btnPreloadWebLlm.disabled = false;
+        this.btnPreloadWebLlm.textContent = "⚠️ Download failed — Click to retry";
+      }
+      if (this.webllmProgressDetail) {
+        this.webllmProgressDetail.textContent = `Error: ${err.message || 'Could not load WebLLM'}. Switched to offline tutor.`;
+      }
+    }
   }
 
   renderAiMessage(role, text) {
@@ -1170,7 +1343,144 @@ You can click any of the **quick chips** above, or type your question below!`);
     const currentCode = this.files[this.activeFileName] || '';
     const lastError = this.lastErrorBuffer;
 
-    // Show temporary thinking bubble
+    // 1. In-Browser Local LLM Mode (Qwen2.5-Coder-0.5B via WebGPU)
+    if (this.aiProvider === 'webllm-qwen') {
+      const hasWebGpu = typeof navigator !== 'undefined' && !!navigator.gpu;
+      if (!hasWebGpu) {
+        const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
+        await this.streamAiMessage('assistant', `*(Notice: WebGPU is not supported or enabled on this browser. Switched to Built-in Offline Educational Tutor)*\n\n` + fallback);
+        return;
+      }
+
+      let progressBubble = null;
+      if (!this.webLlmEngine) {
+        progressBubble = document.createElement('div');
+        progressBubble.className = 'ai-msg assistant';
+        progressBubble.innerHTML = `
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #38bdf8; display:flex; align-items:center; gap:6px;">
+            <span>📦</span> <span>Loading Qwen2.5-Coder-0.5B in browser (~300 MB)...</span>
+          </div>
+          <div class="model-progress-container" style="margin: 4px 0 0 0;">
+            <div class="model-progress-header">
+              <span id="chatProgressLabel">Initializing WebGPU pipeline...</span>
+              <span id="chatProgressPct">0%</span>
+            </div>
+            <div class="model-progress-track">
+              <div id="chatProgressFill" class="model-progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="chatProgressDetail" class="model-progress-note">Weights are saved in browser cache for instant repeat loads.</div>
+          </div>`;
+        this.aiChatStream.appendChild(progressBubble);
+        this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+      }
+
+      try {
+        if (!this.webLlmEngine) {
+          const chatPct = progressBubble.querySelector('#chatProgressPct');
+          const chatFill = progressBubble.querySelector('#chatProgressFill');
+          const chatLabel = progressBubble.querySelector('#chatProgressLabel');
+          const chatDetail = progressBubble.querySelector('#chatProgressDetail');
+
+          await this.initWebLlmEngine((report) => {
+            const pct = Math.round((report.progress || 0) * 100);
+            if (chatPct) chatPct.textContent = `${pct}%`;
+            if (chatFill) chatFill.style.width = `${pct}%`;
+            if (chatLabel && report.text) chatLabel.textContent = report.text;
+            if (chatDetail && report.text) chatDetail.textContent = report.text;
+            this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+          });
+
+          if (progressBubble) progressBubble.remove();
+        }
+
+        // Live token streaming message
+        const msg = document.createElement('div');
+        msg.className = 'ai-msg assistant';
+        msg.innerHTML = '<span class="streaming-cursor">▋</span>';
+        this.aiChatStream.appendChild(msg);
+        this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+
+        const systemPrompt = `You are OpenWay Co-Pilot, an encouraging, patient coding tutor for middle and high school students in a community coding lab.
+Guidelines:
+1. Explain concepts simply and clearly with friendly, supportive language.
+2. Break explanations into digestible steps.
+3. When providing code fixes or new features, put them in markdown code blocks (\`\`\`python or \`\`\`html) with helpful comments.
+4. Encourage the student to think through the problem and celebrate their progress!`;
+
+        const userMessageContent = `Active file: '${this.activeFileName}'
+Current Code:
+\`\`\`
+${currentCode}
+\`\`\`
+${lastError ? `Latest execution error:\n${lastError}\n` : ''}
+
+Student question:
+${userPrompt}`;
+
+        const chunks = await this.webLlmEngine.chat.completions.create({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessageContent }
+          ],
+          temperature: 0.6,
+          max_tokens: 800,
+          stream: true
+        });
+
+        let accumulated = '';
+        for await (const chunk of chunks) {
+          const delta = chunk.choices[0]?.delta?.content || '';
+          accumulated += delta;
+          msg.innerHTML = this.formatMarkdown(accumulated) + '<span class="streaming-cursor">▋</span>';
+          this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+        }
+
+        msg.innerHTML = this.formatMarkdown(accumulated);
+        this.attachAiCodeActions(msg);
+        this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+        return;
+
+      } catch (err) {
+        console.error("WebLLM generation error:", err);
+        if (progressBubble) progressBubble.remove();
+        const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
+        await this.streamAiMessage('assistant', `*(WebLLM notice: ${err.message || 'WebGPU encountered an issue'}. Switched to Built-in Educational Tutor)*\n\n` + fallback);
+        return;
+      }
+    }
+
+    // 2. Google Gemini API Mode
+    if (this.aiProvider === 'gemini') {
+      if (!this.geminiApiKey) {
+        const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
+        await this.streamAiMessage('assistant', `*(No Gemini API Key found. Using Built-in Educational Tutor — click ⚙️ to add your key or switch to Qwen 0.5B)*\n\n` + fallback);
+        return;
+      }
+
+      const thinkingId = 'thinking_' + Date.now();
+      const thinkingMsg = document.createElement('div');
+      thinkingMsg.className = 'ai-msg assistant';
+      thinkingMsg.id = thinkingId;
+      thinkingMsg.innerHTML = `<span class="ai-thinking-pill"><span>OpenWay Co-Pilot is thinking</span> <span class="ai-thinking-dots"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span></span></span>`;
+      this.aiChatStream.appendChild(thinkingMsg);
+      this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
+
+      try {
+        const replyText = await this.callGeminiApi(userPrompt, currentCode, lastError);
+        const thinkingEl = document.getElementById(thinkingId);
+        if (thinkingEl) thinkingEl.remove();
+        await this.streamAiMessage('assistant', replyText);
+      } catch (err) {
+        console.error("Gemini API error:", err);
+        const thinkingEl = document.getElementById(thinkingId);
+        if (thinkingEl) thinkingEl.remove();
+        const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
+        await this.streamAiMessage('assistant', `*(Gemini API request note: ${err.message || 'Connecting to offline mentor mode'})*\n\n` + fallback);
+      }
+      return;
+    }
+
+    // 3. Built-in Offline Educational Tutor Mode
     const thinkingId = 'thinking_' + Date.now();
     const thinkingMsg = document.createElement('div');
     thinkingMsg.className = 'ai-msg assistant';
@@ -1179,33 +1489,12 @@ You can click any of the **quick chips** above, or type your question below!`);
     this.aiChatStream.appendChild(thinkingMsg);
     this.aiChatStream.scrollTop = this.aiChatStream.scrollHeight;
 
-    try {
-      let replyText = '';
+    await new Promise(r => setTimeout(r, 250));
+    const thinkingEl = document.getElementById(thinkingId);
+    if (thinkingEl) thinkingEl.remove();
 
-      // If user provided a Gemini API Key, call Gemini API
-      if (this.geminiApiKey) {
-        replyText = await this.callGeminiApi(userPrompt, currentCode, lastError);
-      } else {
-        // Brief simulated thinking pause (300ms) for natural conversational feel
-        await new Promise(r => setTimeout(r, 300));
-        // Built-in offline intelligent educational tutor
-        replyText = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
-      }
-
-      // Remove thinking element and stream response
-      const thinkingEl = document.getElementById(thinkingId);
-      if (thinkingEl) thinkingEl.remove();
-
-      await this.streamAiMessage('assistant', replyText);
-    } catch (err) {
-      console.error("AI Generation error:", err);
-      const thinkingEl = document.getElementById(thinkingId);
-      if (thinkingEl) thinkingEl.remove();
-
-      // Graceful fallback to offline tutor
-      const fallback = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
-      await this.streamAiMessage('assistant', `*(Gemini API request note: ${err.message || 'Connecting to offline mentor mode'})*\n\n` + fallback);
-    }
+    const replyText = this.runOfflinePedagogicalTutor(userPrompt, intent, currentCode, lastError);
+    await this.streamAiMessage('assistant', replyText);
   }
 
   // =========================================================================
